@@ -12,7 +12,7 @@ import (
 
 func testHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusBadRequest)
-	io.WriteString(w, "hello world")
+	_, _ = io.WriteString(w, "hello world")
 }
 
 func TestWithLogging(t *testing.T) {
