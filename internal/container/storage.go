@@ -7,7 +7,7 @@ import (
 	"github.com/kirilltitov/gophkeeper/internal/storage"
 )
 
-func newPgSQLStorage(ctx context.Context, cfg config.Config) (*storage.PgSQL, error) {
+func newPgSQLStorage(ctx context.Context, cfg *config.Config) (*storage.PgSQL, error) {
 	s, err := storage.New(ctx, cfg.DatabaseDSN)
 	if err != nil {
 		return nil, err

@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	_ "net/http/pprof"
 	"os"
 	"os/signal"
 	"sync"
@@ -42,7 +41,7 @@ func main() {
 	run(service)
 }
 
-func run(service gophkeeper.Gophkeeper) {
+func run(service *gophkeeper.Gophkeeper) {
 	wg := &sync.WaitGroup{}
 	logger := utils.Log
 

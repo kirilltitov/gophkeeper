@@ -18,7 +18,7 @@ import (
 )
 
 func TestGophermart_Login(t *testing.T) {
-	cfg := config.Config{}
+	cfg := config.NewWithoutParsing()
 	ctx := context.Background()
 	cnt := container.Container{Storage: nil}
 

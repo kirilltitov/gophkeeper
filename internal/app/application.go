@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -14,18 +15,21 @@ import (
 
 // Application является объектом веб-приложения сервиса.
 type Application struct {
-	Gophkeeper gophkeeper.Gophkeeper
+	Gophkeeper *gophkeeper.Gophkeeper
 	Server     *http.Server
 
 	wg *sync.WaitGroup
 }
 
 // New создает и возвращает сконфигурированный объект веб-приложения сервиса.
-func New(s gophkeeper.Gophkeeper, wg *sync.WaitGroup) *Application {
+func New(s *gophkeeper.Gophkeeper, wg *sync.WaitGroup) *Application {
 	a := &Application{
 		Gophkeeper: s,
-		Server:     &http.Server{Addr: s.Config.ServerAddress},
-		wg:         wg,
+		Server: &http.Server{
+			Addr:              s.Config.ServerAddress,
+			ReadHeaderTimeout: time.Second * 5,
+		},
+		wg: wg,
 	}
 
 	a.Server.Handler = utils.GzipHandle(a.createRouter())

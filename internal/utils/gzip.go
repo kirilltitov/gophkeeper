@@ -8,8 +8,8 @@ import (
 )
 
 var allowedContentTypes = map[string]bool{
-	"application/json":     true,
-	"text/html; charset: ": true,
+	"application/json":    true,
+	"text/html; charset:": true,
 }
 
 type gzipWriter struct {

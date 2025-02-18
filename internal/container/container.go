@@ -11,7 +11,7 @@ type Container struct {
 	Storage storage.Storage
 }
 
-func New(ctx context.Context, cfg config.Config) (*Container, error) {
+func New(ctx context.Context, cfg *config.Config) (*Container, error) {
 	s, err := newPgSQLStorage(ctx, cfg)
 	if err != nil {
 		return nil, err

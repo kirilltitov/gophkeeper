@@ -12,8 +12,8 @@ type PgSQL struct {
 	Conn *pgxpool.Pool
 }
 
-func New(ctx context.Context, DSN string) (*PgSQL, error) {
-	conf, err := pgxpool.ParseConfig(DSN)
+func New(ctx context.Context, dsn string) (*PgSQL, error) {
+	conf, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +24,7 @@ func New(ctx context.Context, DSN string) (*PgSQL, error) {
 		return nil, err
 	}
 
-	utils.Log.Infof("Connected to PgSQL with DSN %s", DSN)
+	utils.Log.Infof("Connected to PgSQL with DSN %s", dsn)
 
 	return &PgSQL{Conn: pool}, nil
 }

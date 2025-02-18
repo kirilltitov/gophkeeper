@@ -8,7 +8,7 @@ import (
 )
 
 // Register Создает нового пользователя с заданным логином и паролем
-func (g Gophkeeper) Register(ctx context.Context, login string, rawPassword string) (*storage.User, error) {
+func (g *Gophkeeper) Register(ctx context.Context, login string, rawPassword string) (*storage.User, error) {
 	if login == "" {
 		return nil, ErrEmptyLogin
 	}

@@ -7,11 +7,11 @@ import (
 
 // Gophkeeper является объектом, инкапсулирующим в себе бизнес-логику сервиса по хранению секретов.
 type Gophkeeper struct {
-	Config    config.Config
+	Config    *config.Config
 	Container *container.Container
 }
 
 // New создает, конфигурирует и возвращает экземпляр объекта сервиса.
-func New(cfg config.Config, cnt *container.Container) Gophkeeper {
-	return Gophkeeper{Config: cfg, Container: cnt}
+func New(cfg *config.Config, cnt *container.Container) *Gophkeeper {
+	return &Gophkeeper{Config: cfg, Container: cnt}
 }

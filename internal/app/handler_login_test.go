@@ -21,7 +21,7 @@ func TestApplication_HandlerLogin(t *testing.T) {
 	t.Parallel()
 
 	a := Application{
-		Gophkeeper: gophkeeper.Gophkeeper{
+		Gophkeeper: &gophkeeper.Gophkeeper{
 			Config:    config.NewWithoutParsing(),
 			Container: &container.Container{Storage: nil},
 		},

@@ -17,7 +17,7 @@ import (
 
 func TestApplication_WithAuthorization(t *testing.T) {
 	a := Application{
-		Gophkeeper: gophkeeper.Gophkeeper{
+		Gophkeeper: &gophkeeper.Gophkeeper{
 			Config: config.NewWithoutParsing(),
 		},
 	}
@@ -73,7 +73,7 @@ func TestApplication_WithAuthorization(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req, err := http.NewRequest("GET", "/", nil)
+			req, err := http.NewRequest("GET", "/", http.NoBody)
 			require.NoError(t, err)
 
 			if tt.cookie != nil {

@@ -21,7 +21,7 @@ func TestWithLogging(t *testing.T) {
 	buf := bytes.Buffer{}
 	Log.SetOutput(&buf)
 
-	r := httptest.NewRequest(http.MethodGet, "/abc", nil)
+	r := httptest.NewRequest(http.MethodGet, "/abc", http.NoBody)
 	w := httptest.NewRecorder()
 
 	WithLogging(http.HandlerFunc(testHandler)).ServeHTTP(w, r)

@@ -2,7 +2,7 @@ package storage
 
 import (
 	"context"
-	"crypto/sha1"
+	"crypto/sha256"
 	"encoding/hex"
 	"errors"
 	"io"
@@ -30,20 +30,20 @@ func (u *User) IsValidPassword(password string) bool {
 func (u *User) getHashedPassword(rawPassword string) string {
 	dt := strconv.FormatInt(u.CreatedAt.Unix(), 10)
 
-	h := sha1.New()
+	h := sha256.New()
 	io.WriteString(h, rawPassword)
 	io.WriteString(h, dt)
 
 	result := hex.EncodeToString(h.Sum(nil))
 
-	utils.Log.Debugf("Hashing sha1('%s' + '%s') = '%s'", rawPassword, dt, result)
+	utils.Log.Debugf("Hashing sha256('%s' + '%s') = '%s'", rawPassword, dt, result)
 
 	return result
 }
 
-func NewUser(ID uuid.UUID, login string, rawPassword string) User {
+func NewUser(id uuid.UUID, login string, rawPassword string) User {
 	user := User{
-		ID:        ID,
+		ID:        id,
 		Login:     login,
 		CreatedAt: time.Now(),
 	}

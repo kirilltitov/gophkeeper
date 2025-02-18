@@ -18,7 +18,7 @@ import (
 
 func TestApplication_HandlerRegister(t *testing.T) {
 	a := Application{
-		Gophkeeper: gophkeeper.Gophkeeper{
+		Gophkeeper: &gophkeeper.Gophkeeper{
 			Config:    config.NewWithoutParsing(),
 			Container: &container.Container{Storage: nil},
 		},

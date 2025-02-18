@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"errors"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -14,7 +15,13 @@ func WithTransaction[T any](ctx context.Context, pg PgSQL, f func(pgx.Tx) (*T, e
 
 	result, err := f(transaction)
 	if err != nil {
-		transaction.Rollback(ctx)
+		if err := transaction.Rollback(ctx); err != nil {
+			if errors.Is(err, pgx.ErrTxClosed) {
+				return result, nil
+			} else {
+				return nil, err
+			}
+		}
 		return nil, err
 	}
 

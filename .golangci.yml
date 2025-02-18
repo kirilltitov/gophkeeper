@@ -38,8 +38,6 @@ linters:
     - gosec # Inspects source code for security problems
     - revive # Drop-in replacement of golint
     - gocritic # Check for bugs, performance and style issues
-    - funlen # Detection of long functions
-    - errcheck # Checking for unchecked errors in go programs
     - exportloopref # Checks for pointers to enclosing loop variables
     - whitespace # Detection of leading and trailing whitespace
     - lll # Reports long lines

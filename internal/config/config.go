@@ -15,14 +15,14 @@ type Config struct {
 	JWTTimeToLive int
 }
 
-func New() Config {
+func New() *Config {
 	ParseFlags()
 
 	return NewWithoutParsing()
 }
 
-func NewWithoutParsing() Config {
-	return Config{
+func NewWithoutParsing() *Config {
+	return &Config{
 		ServerAddress: getServerAddress(),
 		DatabaseDSN:   getDatabaseDSN(),
 		TLSCertFile:   getTLSCertFile(),
@@ -33,7 +33,7 @@ func NewWithoutParsing() Config {
 	}
 }
 
-func (c Config) IsTLSEnabled() bool {
+func (c *Config) IsTLSEnabled() bool {
 	return c.TLSKeyFile != "" && c.TLSCertFile != ""
 }
 
