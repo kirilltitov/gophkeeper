@@ -31,8 +31,8 @@ func (u *User) getHashedPassword(rawPassword string) string {
 	dt := strconv.FormatInt(u.CreatedAt.Unix(), 10)
 
 	h := sha256.New()
-	io.WriteString(h, rawPassword)
-	io.WriteString(h, dt)
+	_, _ = io.WriteString(h, rawPassword)
+	_, _ = io.WriteString(h, dt)
 
 	result := hex.EncodeToString(h.Sum(nil))
 

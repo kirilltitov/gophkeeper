@@ -62,7 +62,7 @@ func GzipHandle(next http.Handler) http.Handler {
 		if supportsGzip {
 			gz, err := gzip.NewWriterLevel(w, gzip.BestSpeed)
 			if err != nil {
-				io.WriteString(w, err.Error())
+				_, _ = io.WriteString(w, err.Error())
 				return
 			}
 
