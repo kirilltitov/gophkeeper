@@ -1,0 +1,22 @@
+name: tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  tests:
+    name: tests
+    runs-on: ubuntu-latest
+    container: golang:1.22
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run tests
+        run: |
+          go test -race -cover -coverprofile=coverage.out ./...
+          sed -i '/\(\/cmd\/\|\/mocks\/\|\.pb\.go\)/d' coverage.out
+          go tool cover -func=coverage.out
