@@ -2,12 +2,15 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"testing"
+
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/stretchr/testify/require"
 
 	"github.com/kirilltitov/gophkeeper/internal/config"
 	"github.com/kirilltitov/gophkeeper/internal/utils"
 	"github.com/kirilltitov/gophkeeper/internal/utils/rand"
-	"github.com/stretchr/testify/require"
 )
 
 func setUp(ctx context.Context, t *testing.T) Storage {
@@ -16,7 +19,14 @@ func setUp(ctx context.Context, t *testing.T) Storage {
 	s, err := New(ctx, cfg.DatabaseDSN)
 	require.NoError(t, err)
 
-	require.NoError(t, s.InitDB(ctx))
+	err = s.InitDB(ctx)
+	var connError *pgconn.ConnectError
+	if errors.As(err, &connError) {
+		t.Skipf("Could not connect to PgSQL, skipping all storage tests")
+		return nil
+	}
+
+	require.NoError(t, err)
 
 	return s
 }
