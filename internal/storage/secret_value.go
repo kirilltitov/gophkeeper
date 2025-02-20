@@ -21,6 +21,46 @@ type SecretValue interface {
 	CreateValue(ctx context.Context, tx pgx.Tx, secret *Secret) error
 }
 
+func (s *PgSQL) EditSecretCredentials(ctx context.Context, secret *Secret, login string, password string) error {
+	if secret.Kind != KindCredentials {
+		return ErrWrongKind
+	}
+
+	query := `update public.secret_credentials set login = $1, password = $2 where id = $3`
+	_, err := s.Conn.Exec(ctx, query, login, password, secret.ID)
+	return err
+}
+
+func (s *PgSQL) EditSecretNote(ctx context.Context, secret *Secret, body string) error {
+	if secret.Kind != KindNote {
+		return ErrWrongKind
+	}
+
+	query := `update public.secret_note set body = $1 where id = $2`
+	_, err := s.Conn.Exec(ctx, query, body, secret.ID)
+	return err
+}
+
+func (s *PgSQL) EditSecretBlob(ctx context.Context, secret *Secret, body string) error {
+	if secret.Kind != KindBlob {
+		return ErrWrongKind
+	}
+
+	query := `update public.secret_blob set body = $1 where id = $2`
+	_, err := s.Conn.Exec(ctx, query, body, secret.ID)
+	return err
+}
+
+func (s *PgSQL) EditSecretBankCard(ctx context.Context, secret *Secret, name, number, date, cvv string) error {
+	if secret.Kind != KindBankCard {
+		return ErrWrongKind
+	}
+
+	query := `update public.secret_bank_card set name = $1, number = $2, date = $3, cvv = $4 where id = $5`
+	_, err := s.Conn.Exec(ctx, query, name, number, date, cvv, secret.ID)
+	return err
+}
+
 func (s *SecretBankCard) CreateValue(ctx context.Context, tx pgx.Tx, secret *Secret) error {
 	if secret.Kind != KindBankCard {
 		return ErrWrongKind
@@ -28,11 +68,7 @@ func (s *SecretBankCard) CreateValue(ctx context.Context, tx pgx.Tx, secret *Sec
 
 	query := `insert into public.secret_bank_card (id, name, number, date, cvv) values ($1, $2, $3, $4, $5)`
 	_, err := tx.Exec(ctx, query, s.ID, s.Name, s.Number, s.Date, s.CVV)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (s *SecretBlob) CreateValue(ctx context.Context, tx pgx.Tx, secret *Secret) error {
@@ -42,11 +78,7 @@ func (s *SecretBlob) CreateValue(ctx context.Context, tx pgx.Tx, secret *Secret)
 
 	query := `insert into public.secret_blob (id, body) values ($1, $2)`
 	_, err := tx.Exec(ctx, query, s.ID, s.Body)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (s *SecretNote) CreateValue(ctx context.Context, tx pgx.Tx, secret *Secret) error {
@@ -56,11 +88,7 @@ func (s *SecretNote) CreateValue(ctx context.Context, tx pgx.Tx, secret *Secret)
 
 	query := `insert into public.secret_note (id, body) values ($1, $2)`
 	_, err := tx.Exec(ctx, query, s.ID, s.Body)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (s *SecretCredentials) CreateValue(ctx context.Context, tx pgx.Tx, secret *Secret) error {
@@ -70,11 +98,7 @@ func (s *SecretCredentials) CreateValue(ctx context.Context, tx pgx.Tx, secret *
 
 	query := `insert into public.secret_credentials (id, login, password) values ($1, $2, $3)`
 	_, err := tx.Exec(ctx, query, s.ID, s.Login, s.Password)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func loadSecretValue(ctx context.Context, tx pgx.Tx, secret *Secret) (SecretValue, error) {

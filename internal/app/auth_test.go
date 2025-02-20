@@ -81,7 +81,7 @@ func TestApplication_WithAuthorization(t *testing.T) {
 			}
 
 			handler := a.WithAuthorization(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				userID, ok := GetUserID(r.Context())
+				userID, ok := utils.GetUserID(r.Context())
 
 				if tt.want != nil {
 					require.Equal(t, tt.want, &userID)

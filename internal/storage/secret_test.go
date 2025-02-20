@@ -11,8 +11,11 @@ import (
 )
 
 func createRandomSecret(t *testing.T, ctx context.Context, s Storage) *Secret {
+	return createRandomSecretForUser(t, ctx, s, createRandomUser(ctx, s, t))
+}
+
+func createRandomSecretForUser(t *testing.T, ctx context.Context, s Storage, user *User) *Secret {
 	var err error
-	user := createRandomUser(ctx, s, t)
 
 	secretID := utils.NewUUID6()
 	secretName := "Card " + rand.RandomString(10)
@@ -73,17 +76,66 @@ func TestPgSQL_CreateSecret(t *testing.T) {
 	require.ErrorIs(t, err, ErrDuplicateSecretFound)
 }
 
-func TestPgSQL_LoadSecret(t *testing.T) {
+func TestPgSQL_DeleteSecret(t *testing.T) {
 	ctx := context.Background()
 	s := setUp(ctx, t)
 
-	loadedSecret, err := s.LoadSecret(ctx, utils.NewUUID6(), rand.RandomString(10))
+	var err error
+
+	secret := createRandomSecret(t, ctx, s)
+
+	err = s.DeleteSecret(ctx, secret.ID)
+	require.NoError(t, err)
+
+	_, err = s.LoadSecretByID(ctx, secret.ID)
+	require.ErrorIs(t, err, ErrNotFound)
+}
+
+func TestPgSQL_RenameSecret(t *testing.T) {
+	ctx := context.Background()
+	s := setUp(ctx, t)
+
+	var err error
+
+	user := createRandomUser(ctx, s, t)
+
+	existingSecret := createRandomSecretForUser(t, ctx, s, user)
+	newSecret := createRandomSecretForUser(t, ctx, s, user)
+
+	err = s.RenameSecret(ctx, newSecret.ID, existingSecret.Name)
+	require.ErrorIs(t, err, ErrDuplicateSecretFound)
+
+	err = s.RenameSecret(ctx, newSecret.ID, rand.RandomString(10))
+	require.NoError(t, err)
+}
+
+func TestPgSQL_LoadSecretByName(t *testing.T) {
+	ctx := context.Background()
+	s := setUp(ctx, t)
+
+	loadedSecret, err := s.LoadSecretByName(ctx, utils.NewUUID6(), rand.RandomString(10))
 	require.ErrorIs(t, err, ErrNotFound)
 	require.Nil(t, loadedSecret)
 
 	secret := createRandomSecret(t, ctx, s)
 
-	loadedSecret, err = s.LoadSecret(ctx, secret.UserID, secret.Name)
+	loadedSecret, err = s.LoadSecretByName(ctx, secret.UserID, secret.Name)
+	require.NoError(t, err)
+	require.NotNil(t, loadedSecret)
+	require.Equal(t, secret, loadedSecret)
+}
+
+func TestPgSQL_LoadSecretByID(t *testing.T) {
+	ctx := context.Background()
+	s := setUp(ctx, t)
+
+	loadedSecret, err := s.LoadSecretByID(ctx, utils.NewUUID6())
+	require.ErrorIs(t, err, ErrNotFound)
+	require.Nil(t, loadedSecret)
+
+	secret := createRandomSecret(t, ctx, s)
+
+	loadedSecret, err = s.LoadSecretByID(ctx, secret.ID)
 	require.NoError(t, err)
 	require.NotNil(t, loadedSecret)
 	require.Equal(t, secret, loadedSecret)
@@ -96,7 +148,7 @@ func TestPgSQL_LoadSecrets(t *testing.T) {
 	var err error
 	user := createRandomUser(ctx, s, t)
 
-	loadedSecrets, err := s.LoadSecrets(ctx, *user)
+	loadedSecrets, err := s.LoadSecrets(ctx, user.ID)
 	require.NoError(t, err)
 	require.Len(t, *loadedSecrets, 0)
 
@@ -121,7 +173,7 @@ func TestPgSQL_LoadSecrets(t *testing.T) {
 		require.NoError(t, err)
 	}
 
-	loadedSecrets, err = s.LoadSecrets(ctx, *user)
+	loadedSecrets, err = s.LoadSecrets(ctx, user.ID)
 	require.NoError(t, err)
 	require.NotNil(t, loadedSecrets)
 	require.Len(t, *loadedSecrets, numSecrets)
@@ -225,7 +277,7 @@ func TestPgSQL_LoadSecret_values(t *testing.T) {
 			err := s.CreateSecret(ctx, tt.input)
 			require.NoError(t, err)
 
-			loadedSecret, err := s.LoadSecret(ctx, user.ID, tt.input.Name)
+			loadedSecret, err := s.LoadSecretByName(ctx, user.ID, tt.input.Name)
 			require.NoError(t, err)
 			require.NotNil(t, loadedSecret)
 			require.Equal(t, tt.input, loadedSecret)

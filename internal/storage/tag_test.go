@@ -25,7 +25,7 @@ func TestPgSQL_AddTag(t *testing.T) {
 	err = s.AddTag(ctx, secret.ID, tag1)
 	require.NoError(t, err)
 
-	loadedSecret, err = s.LoadSecret(ctx, secret.UserID, secret.Name)
+	loadedSecret, err = s.LoadSecretByName(ctx, secret.UserID, secret.Name)
 	require.NoError(t, err)
 	require.Equal(t, Tags{tag1}, loadedSecret.Tags)
 
@@ -33,14 +33,14 @@ func TestPgSQL_AddTag(t *testing.T) {
 	err = s.AddTag(ctx, secret.ID, tag2)
 	require.NoError(t, err)
 
-	loadedSecret, err = s.LoadSecret(ctx, secret.UserID, secret.Name)
+	loadedSecret, err = s.LoadSecretByName(ctx, secret.UserID, secret.Name)
 	require.NoError(t, err)
 	require.Equal(t, Tags{tag1, tag2}, loadedSecret.Tags)
 
 	err = s.DeleteTag(ctx, secret.ID, tag1)
 	require.NoError(t, err)
 
-	loadedSecret, err = s.LoadSecret(ctx, secret.UserID, secret.Name)
+	loadedSecret, err = s.LoadSecretByName(ctx, secret.UserID, secret.Name)
 	require.NoError(t, err)
 	require.Equal(t, Tags{tag2}, loadedSecret.Tags)
 }
@@ -79,7 +79,7 @@ func TestPgSQL_LoadSecrets_with_tags(t *testing.T) {
 	err = s.AddTag(ctx, secretID, tag2)
 	require.NoError(t, err)
 
-	loadedSecrets, err := s.LoadSecrets(ctx, *user)
+	loadedSecrets, err := s.LoadSecrets(ctx, user.ID)
 	require.NoError(t, err)
 	loadedSecret := (*loadedSecrets)[0]
 	require.Len(t, loadedSecret.Tags, 2)

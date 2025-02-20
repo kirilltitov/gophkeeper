@@ -1,7 +1,6 @@
 package app
 
 import (
-	"context"
 	"net/http"
 	"time"
 
@@ -16,13 +15,11 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-type CtxUserIDKey struct{}
-
 func (a *Application) WithAuthorization(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if userID := a.authorize(r); userID != nil {
 			utils.Log.Infof("Authorized user %s by JWT cookie", userID.String())
-			r = r.WithContext(context.WithValue(r.Context(), CtxUserIDKey{}, *userID))
+			r = r.WithContext(utils.SetUserID(r.Context(), *userID))
 		}
 
 		next.ServeHTTP(w, r)
@@ -95,9 +92,4 @@ func (a *Application) CreateAuthCookie(user storage.User) (*http.Cookie, error) 
 		Value:   token,
 		Expires: exp,
 	}, nil
-}
-
-func GetUserID(ctx context.Context) (uuid.UUID, bool) {
-	userID, ok := ctx.Value(CtxUserIDKey{}).(uuid.UUID)
-	return userID, ok
 }

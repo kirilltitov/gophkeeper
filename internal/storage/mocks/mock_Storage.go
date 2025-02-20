@@ -198,6 +198,53 @@ func (_c *MockStorage_CreateUser_Call) RunAndReturn(run func(context.Context, st
 	return _c
 }
 
+// DeleteSecret provides a mock function with given fields: ctx, secretID
+func (_m *MockStorage) DeleteSecret(ctx context.Context, secretID uuid.UUID) error {
+	ret := _m.Called(ctx, secretID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteSecret")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) error); ok {
+		r0 = rf(ctx, secretID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockStorage_DeleteSecret_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DeleteSecret'
+type MockStorage_DeleteSecret_Call struct {
+	*mock.Call
+}
+
+// DeleteSecret is a helper method to define mock.On call
+//   - ctx context.Context
+//   - secretID uuid.UUID
+func (_e *MockStorage_Expecter) DeleteSecret(ctx interface{}, secretID interface{}) *MockStorage_DeleteSecret_Call {
+	return &MockStorage_DeleteSecret_Call{Call: _e.mock.On("DeleteSecret", ctx, secretID)}
+}
+
+func (_c *MockStorage_DeleteSecret_Call) Run(run func(ctx context.Context, secretID uuid.UUID)) *MockStorage_DeleteSecret_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID))
+	})
+	return _c
+}
+
+func (_c *MockStorage_DeleteSecret_Call) Return(_a0 error) *MockStorage_DeleteSecret_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockStorage_DeleteSecret_Call) RunAndReturn(run func(context.Context, uuid.UUID) error) *MockStorage_DeleteSecret_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // DeleteTag provides a mock function with given fields: ctx, secretID, tag
 func (_m *MockStorage) DeleteTag(ctx context.Context, secretID uuid.UUID, tag string) error {
 	ret := _m.Called(ctx, secretID, tag)
@@ -246,12 +293,267 @@ func (_c *MockStorage_DeleteTag_Call) RunAndReturn(run func(context.Context, uui
 	return _c
 }
 
-// LoadSecret provides a mock function with given fields: ctx, userID, name
-func (_m *MockStorage) LoadSecret(ctx context.Context, userID uuid.UUID, name string) (*storage.Secret, error) {
+// EditSecretBankCard provides a mock function with given fields: ctx, secret, name, number, date, cvv
+func (_m *MockStorage) EditSecretBankCard(ctx context.Context, secret *storage.Secret, name string, number string, date string, cvv string) error {
+	ret := _m.Called(ctx, secret, name, number, date, cvv)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EditSecretBankCard")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *storage.Secret, string, string, string, string) error); ok {
+		r0 = rf(ctx, secret, name, number, date, cvv)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockStorage_EditSecretBankCard_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'EditSecretBankCard'
+type MockStorage_EditSecretBankCard_Call struct {
+	*mock.Call
+}
+
+// EditSecretBankCard is a helper method to define mock.On call
+//   - ctx context.Context
+//   - secret *storage.Secret
+//   - name string
+//   - number string
+//   - date string
+//   - cvv string
+func (_e *MockStorage_Expecter) EditSecretBankCard(ctx interface{}, secret interface{}, name interface{}, number interface{}, date interface{}, cvv interface{}) *MockStorage_EditSecretBankCard_Call {
+	return &MockStorage_EditSecretBankCard_Call{Call: _e.mock.On("EditSecretBankCard", ctx, secret, name, number, date, cvv)}
+}
+
+func (_c *MockStorage_EditSecretBankCard_Call) Run(run func(ctx context.Context, secret *storage.Secret, name string, number string, date string, cvv string)) *MockStorage_EditSecretBankCard_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*storage.Secret), args[2].(string), args[3].(string), args[4].(string), args[5].(string))
+	})
+	return _c
+}
+
+func (_c *MockStorage_EditSecretBankCard_Call) Return(_a0 error) *MockStorage_EditSecretBankCard_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockStorage_EditSecretBankCard_Call) RunAndReturn(run func(context.Context, *storage.Secret, string, string, string, string) error) *MockStorage_EditSecretBankCard_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// EditSecretBlob provides a mock function with given fields: ctx, secret, body
+func (_m *MockStorage) EditSecretBlob(ctx context.Context, secret *storage.Secret, body string) error {
+	ret := _m.Called(ctx, secret, body)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EditSecretBlob")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *storage.Secret, string) error); ok {
+		r0 = rf(ctx, secret, body)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockStorage_EditSecretBlob_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'EditSecretBlob'
+type MockStorage_EditSecretBlob_Call struct {
+	*mock.Call
+}
+
+// EditSecretBlob is a helper method to define mock.On call
+//   - ctx context.Context
+//   - secret *storage.Secret
+//   - body string
+func (_e *MockStorage_Expecter) EditSecretBlob(ctx interface{}, secret interface{}, body interface{}) *MockStorage_EditSecretBlob_Call {
+	return &MockStorage_EditSecretBlob_Call{Call: _e.mock.On("EditSecretBlob", ctx, secret, body)}
+}
+
+func (_c *MockStorage_EditSecretBlob_Call) Run(run func(ctx context.Context, secret *storage.Secret, body string)) *MockStorage_EditSecretBlob_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*storage.Secret), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *MockStorage_EditSecretBlob_Call) Return(_a0 error) *MockStorage_EditSecretBlob_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockStorage_EditSecretBlob_Call) RunAndReturn(run func(context.Context, *storage.Secret, string) error) *MockStorage_EditSecretBlob_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// EditSecretCredentials provides a mock function with given fields: ctx, secret, login, password
+func (_m *MockStorage) EditSecretCredentials(ctx context.Context, secret *storage.Secret, login string, password string) error {
+	ret := _m.Called(ctx, secret, login, password)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EditSecretCredentials")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *storage.Secret, string, string) error); ok {
+		r0 = rf(ctx, secret, login, password)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockStorage_EditSecretCredentials_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'EditSecretCredentials'
+type MockStorage_EditSecretCredentials_Call struct {
+	*mock.Call
+}
+
+// EditSecretCredentials is a helper method to define mock.On call
+//   - ctx context.Context
+//   - secret *storage.Secret
+//   - login string
+//   - password string
+func (_e *MockStorage_Expecter) EditSecretCredentials(ctx interface{}, secret interface{}, login interface{}, password interface{}) *MockStorage_EditSecretCredentials_Call {
+	return &MockStorage_EditSecretCredentials_Call{Call: _e.mock.On("EditSecretCredentials", ctx, secret, login, password)}
+}
+
+func (_c *MockStorage_EditSecretCredentials_Call) Run(run func(ctx context.Context, secret *storage.Secret, login string, password string)) *MockStorage_EditSecretCredentials_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*storage.Secret), args[2].(string), args[3].(string))
+	})
+	return _c
+}
+
+func (_c *MockStorage_EditSecretCredentials_Call) Return(_a0 error) *MockStorage_EditSecretCredentials_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockStorage_EditSecretCredentials_Call) RunAndReturn(run func(context.Context, *storage.Secret, string, string) error) *MockStorage_EditSecretCredentials_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// EditSecretNote provides a mock function with given fields: ctx, secret, body
+func (_m *MockStorage) EditSecretNote(ctx context.Context, secret *storage.Secret, body string) error {
+	ret := _m.Called(ctx, secret, body)
+
+	if len(ret) == 0 {
+		panic("no return value specified for EditSecretNote")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *storage.Secret, string) error); ok {
+		r0 = rf(ctx, secret, body)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockStorage_EditSecretNote_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'EditSecretNote'
+type MockStorage_EditSecretNote_Call struct {
+	*mock.Call
+}
+
+// EditSecretNote is a helper method to define mock.On call
+//   - ctx context.Context
+//   - secret *storage.Secret
+//   - body string
+func (_e *MockStorage_Expecter) EditSecretNote(ctx interface{}, secret interface{}, body interface{}) *MockStorage_EditSecretNote_Call {
+	return &MockStorage_EditSecretNote_Call{Call: _e.mock.On("EditSecretNote", ctx, secret, body)}
+}
+
+func (_c *MockStorage_EditSecretNote_Call) Run(run func(ctx context.Context, secret *storage.Secret, body string)) *MockStorage_EditSecretNote_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*storage.Secret), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *MockStorage_EditSecretNote_Call) Return(_a0 error) *MockStorage_EditSecretNote_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockStorage_EditSecretNote_Call) RunAndReturn(run func(context.Context, *storage.Secret, string) error) *MockStorage_EditSecretNote_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LoadSecretByID provides a mock function with given fields: ctx, ID
+func (_m *MockStorage) LoadSecretByID(ctx context.Context, ID uuid.UUID) (*storage.Secret, error) {
+	ret := _m.Called(ctx, ID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for LoadSecretByID")
+	}
+
+	var r0 *storage.Secret
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*storage.Secret, error)); ok {
+		return rf(ctx, ID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *storage.Secret); ok {
+		r0 = rf(ctx, ID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*storage.Secret)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = rf(ctx, ID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockStorage_LoadSecretByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LoadSecretByID'
+type MockStorage_LoadSecretByID_Call struct {
+	*mock.Call
+}
+
+// LoadSecretByID is a helper method to define mock.On call
+//   - ctx context.Context
+//   - ID uuid.UUID
+func (_e *MockStorage_Expecter) LoadSecretByID(ctx interface{}, ID interface{}) *MockStorage_LoadSecretByID_Call {
+	return &MockStorage_LoadSecretByID_Call{Call: _e.mock.On("LoadSecretByID", ctx, ID)}
+}
+
+func (_c *MockStorage_LoadSecretByID_Call) Run(run func(ctx context.Context, ID uuid.UUID)) *MockStorage_LoadSecretByID_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID))
+	})
+	return _c
+}
+
+func (_c *MockStorage_LoadSecretByID_Call) Return(_a0 *storage.Secret, _a1 error) *MockStorage_LoadSecretByID_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockStorage_LoadSecretByID_Call) RunAndReturn(run func(context.Context, uuid.UUID) (*storage.Secret, error)) *MockStorage_LoadSecretByID_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// LoadSecretByName provides a mock function with given fields: ctx, userID, name
+func (_m *MockStorage) LoadSecretByName(ctx context.Context, userID uuid.UUID, name string) (*storage.Secret, error) {
 	ret := _m.Called(ctx, userID, name)
 
 	if len(ret) == 0 {
-		panic("no return value specified for LoadSecret")
+		panic("no return value specified for LoadSecretByName")
 	}
 
 	var r0 *storage.Secret
@@ -276,39 +578,39 @@ func (_m *MockStorage) LoadSecret(ctx context.Context, userID uuid.UUID, name st
 	return r0, r1
 }
 
-// MockStorage_LoadSecret_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LoadSecret'
-type MockStorage_LoadSecret_Call struct {
+// MockStorage_LoadSecretByName_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'LoadSecretByName'
+type MockStorage_LoadSecretByName_Call struct {
 	*mock.Call
 }
 
-// LoadSecret is a helper method to define mock.On call
+// LoadSecretByName is a helper method to define mock.On call
 //   - ctx context.Context
 //   - userID uuid.UUID
 //   - name string
-func (_e *MockStorage_Expecter) LoadSecret(ctx interface{}, userID interface{}, name interface{}) *MockStorage_LoadSecret_Call {
-	return &MockStorage_LoadSecret_Call{Call: _e.mock.On("LoadSecret", ctx, userID, name)}
+func (_e *MockStorage_Expecter) LoadSecretByName(ctx interface{}, userID interface{}, name interface{}) *MockStorage_LoadSecretByName_Call {
+	return &MockStorage_LoadSecretByName_Call{Call: _e.mock.On("LoadSecretByName", ctx, userID, name)}
 }
 
-func (_c *MockStorage_LoadSecret_Call) Run(run func(ctx context.Context, userID uuid.UUID, name string)) *MockStorage_LoadSecret_Call {
+func (_c *MockStorage_LoadSecretByName_Call) Run(run func(ctx context.Context, userID uuid.UUID, name string)) *MockStorage_LoadSecretByName_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(string))
 	})
 	return _c
 }
 
-func (_c *MockStorage_LoadSecret_Call) Return(_a0 *storage.Secret, _a1 error) *MockStorage_LoadSecret_Call {
+func (_c *MockStorage_LoadSecretByName_Call) Return(_a0 *storage.Secret, _a1 error) *MockStorage_LoadSecretByName_Call {
 	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockStorage_LoadSecret_Call) RunAndReturn(run func(context.Context, uuid.UUID, string) (*storage.Secret, error)) *MockStorage_LoadSecret_Call {
+func (_c *MockStorage_LoadSecretByName_Call) RunAndReturn(run func(context.Context, uuid.UUID, string) (*storage.Secret, error)) *MockStorage_LoadSecretByName_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// LoadSecrets provides a mock function with given fields: ctx, user
-func (_m *MockStorage) LoadSecrets(ctx context.Context, user storage.User) (*[]storage.Secret, error) {
-	ret := _m.Called(ctx, user)
+// LoadSecrets provides a mock function with given fields: ctx, userID
+func (_m *MockStorage) LoadSecrets(ctx context.Context, userID uuid.UUID) (*[]storage.Secret, error) {
+	ret := _m.Called(ctx, userID)
 
 	if len(ret) == 0 {
 		panic("no return value specified for LoadSecrets")
@@ -316,19 +618,19 @@ func (_m *MockStorage) LoadSecrets(ctx context.Context, user storage.User) (*[]s
 
 	var r0 *[]storage.Secret
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, storage.User) (*[]storage.Secret, error)); ok {
-		return rf(ctx, user)
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) (*[]storage.Secret, error)); ok {
+		return rf(ctx, userID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, storage.User) *[]storage.Secret); ok {
-		r0 = rf(ctx, user)
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID) *[]storage.Secret); ok {
+		r0 = rf(ctx, userID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*[]storage.Secret)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context, storage.User) error); ok {
-		r1 = rf(ctx, user)
+	if rf, ok := ret.Get(1).(func(context.Context, uuid.UUID) error); ok {
+		r1 = rf(ctx, userID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -343,14 +645,14 @@ type MockStorage_LoadSecrets_Call struct {
 
 // LoadSecrets is a helper method to define mock.On call
 //   - ctx context.Context
-//   - user storage.User
-func (_e *MockStorage_Expecter) LoadSecrets(ctx interface{}, user interface{}) *MockStorage_LoadSecrets_Call {
-	return &MockStorage_LoadSecrets_Call{Call: _e.mock.On("LoadSecrets", ctx, user)}
+//   - userID uuid.UUID
+func (_e *MockStorage_Expecter) LoadSecrets(ctx interface{}, userID interface{}) *MockStorage_LoadSecrets_Call {
+	return &MockStorage_LoadSecrets_Call{Call: _e.mock.On("LoadSecrets", ctx, userID)}
 }
 
-func (_c *MockStorage_LoadSecrets_Call) Run(run func(ctx context.Context, user storage.User)) *MockStorage_LoadSecrets_Call {
+func (_c *MockStorage_LoadSecrets_Call) Run(run func(ctx context.Context, userID uuid.UUID)) *MockStorage_LoadSecrets_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(storage.User))
+		run(args[0].(context.Context), args[1].(uuid.UUID))
 	})
 	return _c
 }
@@ -360,7 +662,7 @@ func (_c *MockStorage_LoadSecrets_Call) Return(_a0 *[]storage.Secret, _a1 error)
 	return _c
 }
 
-func (_c *MockStorage_LoadSecrets_Call) RunAndReturn(run func(context.Context, storage.User) (*[]storage.Secret, error)) *MockStorage_LoadSecrets_Call {
+func (_c *MockStorage_LoadSecrets_Call) RunAndReturn(run func(context.Context, uuid.UUID) (*[]storage.Secret, error)) *MockStorage_LoadSecrets_Call {
 	_c.Call.Return(run)
 	return _c
 }
@@ -420,6 +722,54 @@ func (_c *MockStorage_LoadUser_Call) Return(_a0 *storage.User, _a1 error) *MockS
 }
 
 func (_c *MockStorage_LoadUser_Call) RunAndReturn(run func(context.Context, string) (*storage.User, error)) *MockStorage_LoadUser_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// RenameSecret provides a mock function with given fields: ctx, secretID, name
+func (_m *MockStorage) RenameSecret(ctx context.Context, secretID uuid.UUID, name string) error {
+	ret := _m.Called(ctx, secretID, name)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RenameSecret")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, uuid.UUID, string) error); ok {
+		r0 = rf(ctx, secretID, name)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockStorage_RenameSecret_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RenameSecret'
+type MockStorage_RenameSecret_Call struct {
+	*mock.Call
+}
+
+// RenameSecret is a helper method to define mock.On call
+//   - ctx context.Context
+//   - secretID uuid.UUID
+//   - name string
+func (_e *MockStorage_Expecter) RenameSecret(ctx interface{}, secretID interface{}, name interface{}) *MockStorage_RenameSecret_Call {
+	return &MockStorage_RenameSecret_Call{Call: _e.mock.On("RenameSecret", ctx, secretID, name)}
+}
+
+func (_c *MockStorage_RenameSecret_Call) Run(run func(ctx context.Context, secretID uuid.UUID, name string)) *MockStorage_RenameSecret_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(uuid.UUID), args[2].(string))
+	})
+	return _c
+}
+
+func (_c *MockStorage_RenameSecret_Call) Return(_a0 error) *MockStorage_RenameSecret_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockStorage_RenameSecret_Call) RunAndReturn(run func(context.Context, uuid.UUID, string) error) *MockStorage_RenameSecret_Call {
 	_c.Call.Return(run)
 	return _c
 }

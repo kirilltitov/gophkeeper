@@ -33,6 +33,7 @@ jobs:
         env:
           DATABASE_URI: postgres://postgres:mysecretpassword@postgres:5432/postgres
         run: |
+          go generate ./...
           go test -race -cover -coverprofile=coverage.out ./...
           sed -i '/\(\/cmd\/\|\/mocks\/\|\.pb\.go\)/d' coverage.out
           go tool cover -func=coverage.out

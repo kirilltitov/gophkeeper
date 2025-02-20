@@ -16,9 +16,23 @@ type Storage interface {
 
 	CreateSecret(ctx context.Context, secret *Secret) error
 
-	LoadSecret(ctx context.Context, userID uuid.UUID, name string) (*Secret, error)
+	RenameSecret(ctx context.Context, secretID uuid.UUID, name string) error
 
-	LoadSecrets(ctx context.Context, user User) (*[]Secret, error)
+	DeleteSecret(ctx context.Context, secretID uuid.UUID) error
+
+	EditSecretCredentials(ctx context.Context, secret *Secret, login string, password string) error
+
+	EditSecretNote(ctx context.Context, secret *Secret, body string) error
+
+	EditSecretBlob(ctx context.Context, secret *Secret, body string) error
+
+	EditSecretBankCard(ctx context.Context, secret *Secret, name, number, date, cvv string) error
+
+	LoadSecretByName(ctx context.Context, userID uuid.UUID, name string) (*Secret, error)
+
+	LoadSecretByID(ctx context.Context, ID uuid.UUID) (*Secret, error)
+
+	LoadSecrets(ctx context.Context, userID uuid.UUID) (*[]Secret, error)
 
 	AddTag(ctx context.Context, secretID uuid.UUID, tag string) error
 
