@@ -102,7 +102,7 @@ func TestGophkeeper_EditSecretCredentials(t *testing.T) {
 			if tt.userID != nil {
 				requestContext = utils.SetUserID(context.Background(), *tt.userID)
 			}
-			err := g.EditSecretCredentials(context.WithValue(requestContext, "CASE", tt.name), secret.ID, "login", "password")
+			err := g.EditSecretCredentials(requestContext, secret.ID, "login", "password")
 
 			if tt.want != nil {
 				assert.ErrorIs(t, err, tt.want)
@@ -199,7 +199,7 @@ func TestGophkeeper_EditSecretBankCard(t *testing.T) {
 				requestContext = utils.SetUserID(context.Background(), *tt.userID)
 			}
 			err := g.EditSecretBankCard(
-				context.WithValue(requestContext, "CASE", tt.name),
+				requestContext,
 				secret.ID,
 				"name",
 				"1234",
@@ -302,7 +302,7 @@ func TestGophkeeper_EditSecretBlob(t *testing.T) {
 				requestContext = utils.SetUserID(context.Background(), *tt.userID)
 			}
 			err := g.EditSecretBlob(
-				context.WithValue(requestContext, "CASE", tt.name),
+				requestContext,
 				secret.ID,
 				"name",
 			)
@@ -402,7 +402,7 @@ func TestGophkeeper_EditSecretNote(t *testing.T) {
 				requestContext = utils.SetUserID(context.Background(), *tt.userID)
 			}
 			err := g.EditSecretNote(
-				context.WithValue(requestContext, "CASE", tt.name),
+				requestContext,
 				secret.ID,
 				"name",
 			)

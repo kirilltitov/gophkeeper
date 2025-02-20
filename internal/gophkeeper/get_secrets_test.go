@@ -67,7 +67,7 @@ func TestGophkeeper_GetSecrets(t *testing.T) {
 				requestContext = utils.SetUserID(context.Background(), *tt.userID)
 			}
 			_, err := g.GetSecrets(
-				context.WithValue(requestContext, "CASE", tt.name),
+				requestContext,
 			)
 
 			if tt.want != nil {

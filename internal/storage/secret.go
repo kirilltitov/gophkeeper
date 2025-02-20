@@ -101,9 +101,9 @@ func (s *PgSQL) LoadSecretByName(ctx context.Context, userID uuid.UUID, name str
 	})
 }
 
-func (s *PgSQL) LoadSecretByID(ctx context.Context, ID uuid.UUID) (*Secret, error) {
+func (s *PgSQL) LoadSecretByID(ctx context.Context, secretID uuid.UUID) (*Secret, error) {
 	return WithTransaction(ctx, s, func(tx pgx.Tx) (*Secret, error) {
-		return loadSecretByID(ctx, tx, ID)
+		return loadSecretByID(ctx, tx, secretID)
 	})
 }
 
@@ -178,7 +178,7 @@ func loadSecretByName(ctx context.Context, tx pgx.Tx, userID uuid.UUID, name str
 	return &secret, nil
 }
 
-func loadSecretByID(ctx context.Context, tx pgx.Tx, ID uuid.UUID) (*Secret, error) {
+func loadSecretByID(ctx context.Context, tx pgx.Tx, secretID uuid.UUID) (*Secret, error) {
 	var secret Secret
 
 	query := `
@@ -190,7 +190,7 @@ func loadSecretByID(ctx context.Context, tx pgx.Tx, ID uuid.UUID) (*Secret, erro
 		where s.id = $1
 		group by s.id
 	`
-	if err := pgxscan.Get(ctx, tx, &secret, query, ID); err != nil {
+	if err := pgxscan.Get(ctx, tx, &secret, query, secretID); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrNotFound
 		} else {

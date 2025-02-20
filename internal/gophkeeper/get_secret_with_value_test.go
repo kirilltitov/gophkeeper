@@ -83,7 +83,7 @@ func TestGophkeeper_GetSecretWithValueByID(t *testing.T) {
 				requestContext = utils.SetUserID(context.Background(), *tt.userID)
 			}
 			_, err := g.GetSecretWithValueByID(
-				context.WithValue(requestContext, "CASE", tt.name),
+				requestContext,
 				secret.ID,
 			)
 
@@ -146,7 +146,7 @@ func TestGophkeeper_GetSecretWithValueByName(t *testing.T) {
 				requestContext = utils.SetUserID(context.Background(), *tt.userID)
 			}
 			_, err := g.GetSecretWithValueByName(
-				context.WithValue(requestContext, "CASE", tt.name),
+				requestContext,
 				secret.Name,
 			)
 

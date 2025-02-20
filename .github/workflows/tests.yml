@@ -26,6 +26,10 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     steps:
+      - uses: brokeyourbike/go-mockery-action@v0
+        with:
+          mockery-version: '2.43.2'
+
       - name: Checkout code
         uses: actions/checkout@v4
 
