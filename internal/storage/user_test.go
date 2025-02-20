@@ -35,6 +35,7 @@ func TestPgSQL_LoadUser(t *testing.T) {
 
 	loadedUser, err = s.LoadUser(ctx, rand.RandomString(10))
 	require.ErrorIs(t, err, ErrNotFound)
+	require.Nil(t, loadedUser)
 
 	user := createRandomUser(ctx, s, t)
 

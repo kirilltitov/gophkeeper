@@ -1,20 +1,17 @@
 package rand
 
 import (
-	"math/rand"
-	"time"
+	"crypto/rand"
+	"math/big"
 )
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
 
 var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 func RandomString(n int) string {
 	b := make([]rune, n)
 	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
+		idx, _ := rand.Int(rand.Reader, big.NewInt(int64(len(letters))))
+		b[i] = letters[idx.Int64()]
 	}
 	return string(b)
 }

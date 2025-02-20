@@ -38,6 +38,7 @@ func TestPgSQL_AddTag(t *testing.T) {
 	require.Equal(t, Tags{tag1, tag2}, loadedSecret.Tags)
 
 	err = s.DeleteTag(ctx, secret.ID, tag1)
+	require.NoError(t, err)
 
 	loadedSecret, err = s.LoadSecret(ctx, secret.UserID, secret.Name)
 	require.NoError(t, err)
