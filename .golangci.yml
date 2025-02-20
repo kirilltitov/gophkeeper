@@ -44,6 +44,7 @@ linters:
     - gocognit # Cognitive complexity of functions - complex functions should be split into smaller ones
     - misspell # Finds commonly misspelled English words in comments
     - maintidx # Maintainability index of each function - complex functions should be split into smaller ones
+    - revive
 
 issues:
   exclude-files:

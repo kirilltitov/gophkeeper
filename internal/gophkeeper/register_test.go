@@ -85,12 +85,12 @@ func TestGophermart_Register(t *testing.T) {
 					s.
 						EXPECT().
 						CreateUser(mock.Anything, mock.Anything).
-						Return(storage.ErrDuplicateFound)
+						Return(storage.ErrDuplicateUserFound)
 					return s
 				}(),
 			},
 			want: want{
-				err: storage.ErrDuplicateFound,
+				err: storage.ErrDuplicateUserFound,
 			},
 		},
 	}

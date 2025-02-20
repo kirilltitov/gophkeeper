@@ -8,7 +8,7 @@ import (
 const defaultPort = 8081
 
 var flagBind = fmt.Sprintf(":%d", defaultPort)
-var flagDatabaseDSN = "postgres://postgres:mysecretpassword@127.0.0.1:5432/postgres"
+var flagDatabaseDSN = "postgres://postgres:mysecretpassword@127.0.0.1:5432/gophkeeper"
 var tlsCertFile = ""
 var tlsKeyFile = ""
 var jwtCookieName = "access_token"

@@ -94,7 +94,7 @@ func TestApplication_HandlerRegister(t *testing.T) {
 					s.
 						EXPECT().
 						CreateUser(mock.Anything, mock.Anything).
-						Return(storage.ErrDuplicateFound)
+						Return(storage.ErrDuplicateUserFound)
 					return s
 				}(),
 			},

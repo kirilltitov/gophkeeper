@@ -18,6 +18,6 @@ func New(ctx context.Context, cfg *config.Config) (*Container, error) {
 	}
 
 	return &Container{
-		Storage: *s,
+		Storage: s,
 	}, nil
 }

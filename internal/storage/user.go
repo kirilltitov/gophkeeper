@@ -12,6 +12,7 @@ import (
 	"github.com/georgysavva/scany/v2/pgxscan"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/kirilltitov/gophkeeper/internal/utils"
 )
@@ -77,32 +78,26 @@ func createUser(ctx context.Context, tx pgx.Tx, user User) error {
 	return nil
 }
 
-func (s PgSQL) LoadUser(ctx context.Context, login string) (*User, error) {
+func (s *PgSQL) LoadUser(ctx context.Context, login string) (*User, error) {
 	return WithTransaction(ctx, s, func(tx pgx.Tx) (*User, error) {
 		return loadUser(ctx, tx, login)
 	})
 }
 
-func (s PgSQL) CreateUser(ctx context.Context, user User) error {
-	_, err := WithTransaction(ctx, s, func(tx pgx.Tx) (*any, error) {
-		existingUser, err := loadUser(ctx, tx, user.Login)
-		if err != nil && !errors.Is(err, ErrNotFound) {
-			return nil, err
-		}
-		if existingUser != nil {
-			return nil, ErrDuplicateFound
-		}
-
+func (s *PgSQL) CreateUser(ctx context.Context, user User) error {
+	return WithVoidTransaction(ctx, s, func(tx pgx.Tx) error {
 		if err := createUser(ctx, tx, user); err != nil {
-			return nil, err
+			var pgErr *pgconn.PgError
+			if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+				return ErrDuplicateUserFound
+			}
+			return err
 		}
 
 		if err := tx.Commit(ctx); err != nil {
-			return nil, err
+			return err
 		}
 
-		return nil, nil
+		return nil
 	})
-
-	return err
 }

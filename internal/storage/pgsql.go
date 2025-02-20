@@ -29,6 +29,6 @@ func New(ctx context.Context, dsn string) (*PgSQL, error) {
 	return &PgSQL{Conn: pool}, nil
 }
 
-func (s PgSQL) Close() {
+func (s *PgSQL) Close() {
 	s.Conn.Close()
 }

@@ -11,7 +11,7 @@ create type public.secret_kind as enum('credentials', 'note', 'blob', 'bank_card
 create table public.secret
 (
     id      uuid         not null primary key,
-    user_id uuid         not null references public."references" (id) on delete cascade,
+    user_id uuid         not null references public.user (id) on delete cascade,
     name    varchar      not null,
     kind    secret_kind  not null,
     unique (user_id, name)
@@ -45,6 +45,13 @@ create table public.secret_bank_card
     cvv    varchar not null
 );
 
+create table public.tag
+(
+    secret_id uuid    not null references secret (id) on delete cascade,
+    text      varchar not null,
+    primary key (secret_id, text)
+);
+
 ---- create above / drop below ----
 
 drop table public.user;
@@ -54,3 +61,4 @@ drop table public.secret_credentials;
 drop table public.secret_note;
 drop table public.secret_blob;
 drop table public.secret_bank_card;
+drop table public.tag;

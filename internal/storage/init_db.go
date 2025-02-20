@@ -14,7 +14,7 @@ import (
 //go:embed migrations/*.sql
 var embedMigrations embed.FS
 
-func (s PgSQL) InitDB(ctx context.Context) error {
+func (s *PgSQL) InitDB(ctx context.Context) error {
 	conn, err := s.Conn.Acquire(ctx)
 	if err != nil {
 		return err

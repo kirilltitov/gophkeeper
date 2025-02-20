@@ -29,7 +29,7 @@ func (a *Application) HandlerRegister(w http.ResponseWriter, r *http.Request) {
 		log.Errorf("Error while registering new user: %v", err)
 		var code int
 		switch {
-		case errors.Is(err, storage.ErrDuplicateFound):
+		case errors.Is(err, storage.ErrDuplicateUserFound):
 			code = http.StatusConflict
 		case errors.Is(err, gophkeeper.ErrEmptyLogin), errors.Is(err, gophkeeper.ErrEmptyPassword):
 			code = http.StatusBadRequest
