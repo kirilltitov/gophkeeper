@@ -47,5 +47,7 @@ func (s *PgSQL) InitDB(ctx context.Context) error {
 
 	utils.Log.Infof("Migration done. Current schema version: %v\n", ver)
 
+	conn.Release()
+
 	return nil
 }

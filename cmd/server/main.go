@@ -66,7 +66,7 @@ func run(service *gophkeeper.Gophkeeper) {
 		if err := application.Server.Shutdown(shutdownCtx); err != nil {
 			logger.WithError(err).Error("Could not shutdown HTTP server properly")
 		}
-		wg.Done()
+		logger.Info("HTTP server is down")
 	}()
 
 	wg.Wait()

@@ -30,5 +30,7 @@ func New(ctx context.Context, dsn string) (*PgSQL, error) {
 }
 
 func (s *PgSQL) Close() {
+	utils.Log.Infof("Closing PgSQL connection")
 	s.Conn.Close()
+	utils.Log.Infof("Closed PgSQL connection")
 }
