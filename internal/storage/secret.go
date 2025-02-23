@@ -29,41 +29,36 @@ var Kinds = map[Kind]bool{
 }
 
 type Secret struct {
-	ID     uuid.UUID `db:"id"`
-	UserID uuid.UUID `db:"user_id"`
-	Name   string    `db:"name"`
-	Tags   Tags      `db:"tags"`
-	Kind   Kind      `db:"kind"`
-
-	value SecretValue
+	ID     uuid.UUID   `db:"id" json:"id"`
+	UserID uuid.UUID   `db:"user_id" json:"user_id"`
+	Name   string      `db:"name" json:"name"`
+	Tags   Tags        `db:"tags" json:"tags"`
+	Kind   Kind        `db:"kind" json:"kind"`
+	Value  SecretValue `json:"value"`
 }
 
 type SecretCredentials struct {
-	ID       uuid.UUID `db:"id"`
-	Login    string    `db:"login"`
-	Password string    `db:"password"`
+	ID       uuid.UUID `db:"id" json:"id"`
+	Login    string    `db:"login" json:"login"`
+	Password string    `db:"password" json:"password"`
 }
 
 type SecretNote struct {
-	ID   uuid.UUID `db:"id"`
-	Body string    `db:"body"`
+	ID   uuid.UUID `db:"id" json:"id"`
+	Body string    `db:"body" json:"body"`
 }
 
 type SecretBlob struct {
-	ID   uuid.UUID `db:"id"`
-	Body string    `db:"body"`
+	ID   uuid.UUID `db:"id" json:"id"`
+	Body string    `db:"body" json:"body"`
 }
 
 type SecretBankCard struct {
-	ID     uuid.UUID `db:"id"`
-	Name   string    `db:"name"`
-	Number string    `db:"number"`
-	Date   string    `db:"date"`
-	CVV    string    `db:"cvv"`
-}
-
-func (s *Secret) Value() SecretValue {
-	return s.value
+	ID     uuid.UUID `db:"id" json:"id"`
+	Name   string    `db:"name" json:"name"`
+	Number string    `db:"number" json:"number"`
+	Date   string    `db:"date" json:"date"`
+	CVV    string    `db:"cvv" json:"cvv"`
 }
 
 func (s *PgSQL) CreateSecret(ctx context.Context, secret *Secret) error {
@@ -74,10 +69,6 @@ func (s *PgSQL) CreateSecret(ctx context.Context, secret *Secret) error {
 		}
 
 		if err := createSecret(ctx, tx, secret); err != nil {
-			var pgErr *pgconn.PgError
-			if errors.As(err, &pgErr) && pgErr.Code == "23505" {
-				return ErrDuplicateSecretFound
-			}
 			return err
 		}
 
@@ -173,7 +164,7 @@ func loadSecretByName(ctx context.Context, tx pgx.Tx, userID uuid.UUID, name str
 		}
 		return nil, err
 	}
-	secret.value = secretValue
+	secret.Value = secretValue
 
 	return &secret, nil
 }
@@ -209,7 +200,7 @@ func loadSecretByID(ctx context.Context, tx pgx.Tx, secretID uuid.UUID) (*Secret
 		}
 		return nil, err
 	}
-	secret.value = secretValue
+	secret.Value = secretValue
 
 	return &secret, nil
 }
@@ -218,10 +209,14 @@ func createSecret(ctx context.Context, tx pgx.Tx, secret *Secret) error {
 	query := `insert into public.secret (id, user_id, name, kind) values ($1, $2, $3, $4)`
 	_, err := tx.Exec(ctx, query, secret.ID, secret.UserID, secret.Name, secret.Kind)
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return ErrDuplicateSecretFound
+		}
 		return err
 	}
 
-	if err := secret.value.CreateValue(ctx, tx, secret); err != nil {
+	if err := secret.Value.CreateValue(ctx, tx, secret); err != nil {
 		return err
 	}
 

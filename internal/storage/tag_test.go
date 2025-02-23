@@ -63,7 +63,7 @@ func TestPgSQL_LoadSecrets_with_tags(t *testing.T) {
 		Name:   "Card " + rand.RandomString(10),
 		Tags:   Tags{},
 		Kind:   KindBankCard,
-		value: &SecretBankCard{
+		Value: &SecretBankCard{
 			ID:     secretID,
 			Name:   "KIRILL TITOV",
 			Number: "1234 5678 9012 3456",

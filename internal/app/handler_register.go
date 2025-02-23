@@ -7,7 +7,6 @@ import (
 	"github.com/kirilltitov/gophkeeper/internal/gophkeeper"
 	"github.com/kirilltitov/gophkeeper/internal/storage"
 	"github.com/kirilltitov/gophkeeper/internal/utils"
-	httpUtils "github.com/kirilltitov/gophkeeper/internal/utils/http"
 )
 
 func (a *Application) HandlerRegister(w http.ResponseWriter, r *http.Request) {
@@ -15,12 +14,12 @@ func (a *Application) HandlerRegister(w http.ResponseWriter, r *http.Request) {
 
 	log := utils.Log
 
+	defer r.Body.Close()
 	var req struct {
 		Login    string `json:"login"`
 		Password string `json:"password"`
 	}
-	if err := httpUtils.ParseRequest(w, r, &req); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+	if err := parseRequest(w, r.Body, &req); err != nil {
 		return
 	}
 
@@ -36,17 +35,18 @@ func (a *Application) HandlerRegister(w http.ResponseWriter, r *http.Request) {
 		default:
 			code = http.StatusInternalServerError
 		}
-		w.WriteHeader(code)
+		returnErrorWithCode(w, code, "could not register")
 		return
 	}
 
 	cookie, err := a.CreateAuthCookie(*user)
 	if err != nil {
 		log.Errorf("Error while issuing cookie: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
+		returnErrorWithCode(w, http.StatusInternalServerError, "could not register")
 		return
 	}
 
 	http.SetCookie(w, cookie)
-	w.WriteHeader(http.StatusOK)
+
+	returnSuccessWithCode(w, http.StatusOK, nil)
 }

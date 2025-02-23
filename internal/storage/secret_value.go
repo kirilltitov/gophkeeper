@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	"github.com/georgysavva/scany/v2/pgxscan"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
 	"github.com/kirilltitov/gophkeeper/internal/utils"
@@ -18,7 +19,9 @@ var kindsLoadMap = map[Kind]func(ctx context.Context, tx pgx.Tx, secret *Secret)
 }
 
 type SecretValue interface {
+	SetID(ID uuid.UUID)
 	CreateValue(ctx context.Context, tx pgx.Tx, secret *Secret) error
+	Kind() Kind
 }
 
 func (s *PgSQL) EditSecretCredentials(ctx context.Context, secret *Secret, login string, password string) error {
@@ -99,6 +102,38 @@ func (s *SecretCredentials) CreateValue(ctx context.Context, tx pgx.Tx, secret *
 	query := `insert into public.secret_credentials (id, login, password) values ($1, $2, $3)`
 	_, err := tx.Exec(ctx, query, s.ID, s.Login, s.Password)
 	return err
+}
+
+func (s *SecretBankCard) SetID(ID uuid.UUID) {
+	s.ID = ID
+}
+
+func (s *SecretBlob) SetID(ID uuid.UUID) {
+	s.ID = ID
+}
+
+func (s *SecretNote) SetID(ID uuid.UUID) {
+	s.ID = ID
+}
+
+func (s *SecretCredentials) SetID(ID uuid.UUID) {
+	s.ID = ID
+}
+
+func (s *SecretBankCard) Kind() Kind {
+	return KindBankCard
+}
+
+func (s *SecretBlob) Kind() Kind {
+	return KindBlob
+}
+
+func (s *SecretNote) Kind() Kind {
+	return KindNote
+}
+
+func (s *SecretCredentials) Kind() Kind {
+	return KindCredentials
 }
 
 func loadSecretValue(ctx context.Context, tx pgx.Tx, secret *Secret) (SecretValue, error) {

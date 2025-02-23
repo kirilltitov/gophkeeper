@@ -25,7 +25,7 @@ func createRandomSecretForUser(t *testing.T, ctx context.Context, s Storage, use
 		Name:   secretName,
 		Tags:   Tags{},
 		Kind:   KindBankCard,
-		value: &SecretBankCard{
+		Value: &SecretBankCard{
 			ID:     secretID,
 			Name:   "KIRILL TITOV",
 			Number: "1234 5678 9012 3456",
@@ -54,7 +54,7 @@ func TestPgSQL_CreateSecret(t *testing.T) {
 		UserID: secret.UserID,
 		Name:   secret.Name,
 		Kind:   KindNote,
-		value: &SecretNote{
+		Value: &SecretNote{
 			ID:   secret2ID,
 			Body: "secret",
 		},
@@ -67,7 +67,7 @@ func TestPgSQL_CreateSecret(t *testing.T) {
 		UserID: secret.UserID,
 		Name:   "Note " + rand.RandomString(10),
 		Kind:   KindNote,
-		value: &SecretNote{
+		Value: &SecretNote{
 			ID:   secret.ID,
 			Body: "secret",
 		},
@@ -160,7 +160,7 @@ func TestPgSQL_LoadSecrets(t *testing.T) {
 			UserID: user.ID,
 			Name:   "Card " + rand.RandomString(10),
 			Kind:   KindBankCard,
-			value: &SecretBankCard{
+			Value: &SecretBankCard{
 				ID:     secretID,
 				Name:   "KIRILL TITOV",
 				Number: "1234 5678 9012 3456",
@@ -199,7 +199,7 @@ func TestPgSQL_LoadSecret_values(t *testing.T) {
 				Name:   "Card " + rand.RandomString(10),
 				Tags:   Tags{},
 				Kind:   KindBankCard,
-				value: &SecretBankCard{
+				Value: &SecretBankCard{
 					ID:     secretID,
 					Name:   "KIRILL TITOV",
 					Number: "1234 5678 9012 3456",
@@ -221,7 +221,7 @@ func TestPgSQL_LoadSecret_values(t *testing.T) {
 				Name:   "Blob " + rand.RandomString(10),
 				Tags:   Tags{},
 				Kind:   KindBlob,
-				value: &SecretBlob{
+				Value: &SecretBlob{
 					ID:   secretID,
 					Body: rand.RandomString(16),
 				},
@@ -240,7 +240,7 @@ func TestPgSQL_LoadSecret_values(t *testing.T) {
 				Name:   "Note " + rand.RandomString(10),
 				Tags:   Tags{},
 				Kind:   KindNote,
-				value: &SecretNote{
+				Value: &SecretNote{
 					ID:   secretID,
 					Body: rand.RandomString(16),
 				},
@@ -259,7 +259,7 @@ func TestPgSQL_LoadSecret_values(t *testing.T) {
 				Name:   "Credentials " + rand.RandomString(10),
 				Tags:   Tags{},
 				Kind:   KindCredentials,
-				value: &SecretCredentials{
+				Value: &SecretCredentials{
 					ID:       secretID,
 					Login:    rand.RandomString(10),
 					Password: rand.RandomString(10),
@@ -303,7 +303,7 @@ func TestPgSQL_CreateSecret_kind_mismatch(t *testing.T) {
 				UserID: user.ID,
 				Name:   "Card " + rand.RandomString(10),
 				Kind:   KindNote,
-				value:  &SecretBankCard{},
+				Value:  &SecretBankCard{},
 			}
 			return input{
 				name:  "Negative: note and card",
@@ -317,7 +317,7 @@ func TestPgSQL_CreateSecret_kind_mismatch(t *testing.T) {
 				UserID: user.ID,
 				Name:   "Blob " + rand.RandomString(10),
 				Kind:   KindBankCard,
-				value:  &SecretBlob{},
+				Value:  &SecretBlob{},
 			}
 			return input{
 				name:  "Negative: card and blob",
@@ -331,7 +331,7 @@ func TestPgSQL_CreateSecret_kind_mismatch(t *testing.T) {
 				UserID: user.ID,
 				Name:   "Note " + rand.RandomString(10),
 				Kind:   KindBlob,
-				value: &SecretNote{
+				Value: &SecretNote{
 					ID:   secretID,
 					Body: rand.RandomString(16),
 				},
@@ -348,7 +348,7 @@ func TestPgSQL_CreateSecret_kind_mismatch(t *testing.T) {
 				UserID: user.ID,
 				Name:   "Credentials " + rand.RandomString(10),
 				Kind:   KindCredentials,
-				value:  &SecretNote{},
+				Value:  &SecretNote{},
 			}
 			return input{
 				name:  "Negative: credentials and note",

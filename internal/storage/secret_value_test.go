@@ -23,7 +23,7 @@ func TestPgSQL_EditSecretBlob(t *testing.T) {
 		UserID: user.ID,
 		Name:   "Blob " + rand.RandomString(10),
 		Kind:   KindBlob,
-		value: &SecretBlob{
+		Value: &SecretBlob{
 			ID:   secretID,
 			Body: "someblob",
 		},
@@ -38,7 +38,7 @@ func TestPgSQL_EditSecretBlob(t *testing.T) {
 	loadedSecret, err := s.LoadSecretByName(ctx, secret.UserID, secret.Name)
 	require.NoError(t, err)
 	require.NotNil(t, loadedSecret)
-	require.Equal(t, newBody, loadedSecret.Value().(*SecretBlob).Body)
+	require.Equal(t, newBody, loadedSecret.Value.(*SecretBlob).Body)
 }
 
 func TestPgSQL_EditSecretNote(t *testing.T) {
@@ -54,7 +54,7 @@ func TestPgSQL_EditSecretNote(t *testing.T) {
 		UserID: user.ID,
 		Name:   "Note " + rand.RandomString(10),
 		Kind:   KindNote,
-		value: &SecretNote{
+		Value: &SecretNote{
 			ID:   secretID,
 			Body: "somenote",
 		},
@@ -69,7 +69,7 @@ func TestPgSQL_EditSecretNote(t *testing.T) {
 	loadedSecret, err := s.LoadSecretByName(ctx, secret.UserID, secret.Name)
 	require.NoError(t, err)
 	require.NotNil(t, loadedSecret)
-	require.Equal(t, newBody, loadedSecret.Value().(*SecretNote).Body)
+	require.Equal(t, newBody, loadedSecret.Value.(*SecretNote).Body)
 }
 
 func TestPgSQL_EditSecretBankCard(t *testing.T) {
@@ -85,7 +85,7 @@ func TestPgSQL_EditSecretBankCard(t *testing.T) {
 		UserID: user.ID,
 		Name:   "Card " + rand.RandomString(10),
 		Kind:   KindBankCard,
-		value: &SecretBankCard{
+		Value: &SecretBankCard{
 			ID:     secretID,
 			Name:   "KIRILL TITOV",
 			Number: "1234 5678 9012 3456",
@@ -109,7 +109,7 @@ func TestPgSQL_EditSecretBankCard(t *testing.T) {
 	loadedSecret, err := s.LoadSecretByName(ctx, secret.UserID, secret.Name)
 	require.NoError(t, err)
 	require.NotNil(t, loadedSecret)
-	require.Equal(t, newCard, loadedSecret.Value().(*SecretBankCard))
+	require.Equal(t, newCard, loadedSecret.Value.(*SecretBankCard))
 }
 
 func TestPgSQL_EditSecretCredentials(t *testing.T) {
@@ -125,7 +125,7 @@ func TestPgSQL_EditSecretCredentials(t *testing.T) {
 		UserID: user.ID,
 		Name:   "Card " + rand.RandomString(10),
 		Kind:   KindCredentials,
-		value: &SecretCredentials{
+		Value: &SecretCredentials{
 			ID:       secretID,
 			Login:    "teonoman",
 			Password: "megapass",
@@ -145,5 +145,5 @@ func TestPgSQL_EditSecretCredentials(t *testing.T) {
 	loadedSecret, err := s.LoadSecretByName(ctx, secret.UserID, secret.Name)
 	require.NoError(t, err)
 	require.NotNil(t, loadedSecret)
-	require.Equal(t, newCredentials, loadedSecret.Value().(*SecretCredentials))
+	require.Equal(t, newCredentials, loadedSecret.Value.(*SecretCredentials))
 }

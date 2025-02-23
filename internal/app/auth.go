@@ -15,15 +15,15 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func (a *Application) WithAuthorization(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func (a *Application) WithAuthorization(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if userID := a.authorize(r); userID != nil {
 			utils.Log.Infof("Authorized user %s by JWT cookie", userID.String())
 			r = r.WithContext(utils.SetUserID(r.Context(), *userID))
 		}
 
 		next.ServeHTTP(w, r)
-	}
+	})
 }
 
 func (a *Application) authorize(r *http.Request) *uuid.UUID {

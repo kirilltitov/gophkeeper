@@ -1,13 +1,18 @@
 package app
 
 import (
+	"bytes"
+	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"sync"
 	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 
 	"github.com/kirilltitov/gophkeeper/internal/gophkeeper"
 	"github.com/kirilltitov/gophkeeper/internal/utils"
@@ -71,14 +76,128 @@ func (a *Application) Run() {
 }
 
 func (a *Application) createRouter() chi.Router {
-	router := chi.NewRouter()
+	r := chi.NewRouter()
 
-	router.Use(utils.WithLogging)
+	r.Use(utils.WithLogging)
 
-	router.Mount("/debug", middleware.Profiler())
+	r.Mount("/debug", middleware.Profiler())
 
-	router.Post("/api/login", a.HandlerLogin)
-	router.Post("/api/register", a.HandlerRegister)
+	r.Route("/api", func(r chi.Router) {
+		r.Post("/login", a.HandlerLogin)
+		r.Post("/register", a.HandlerRegister)
 
-	return router
+		r.Route("/secret", func(r chi.Router) {
+			r.Use(a.WithAuthorization)
+
+			r.Get("/{ID}", a.HandlerGetSecret)
+			r.Delete("/{ID}", a.HandlerDeleteSecret)
+			r.Post("/{ID}/rename", a.HandlerRenameSecret)
+
+			r.Get("/list", a.HandlerGetSecrets)
+
+			r.Route("/create", func(r chi.Router) {
+				r.Post("/bank_card", a.HandlerCreateSecretBankCard)
+				r.Post("/credentials", a.HandlerCreateSecretCredentials)
+				r.Post("/note", a.HandlerCreateSecretNote)
+				r.Post("/blob", a.HandlerCreateSecretBlob)
+			})
+
+			r.Route("/edit", func(r chi.Router) {
+				r.Post("/bank_card/{ID}", a.HandlerEditSecretBankCard)
+				r.Post("/credentials/{ID}", a.HandlerEditSecretCredentials)
+				r.Post("/note/{ID}", a.HandlerEditSecretNote)
+				r.Post("/blob/{ID}", a.HandlerEditSecretBlob)
+			})
+
+			r.Post("/tag/{ID}", a.HandlerAddTag)
+			r.Delete("/tag/{ID}", a.HandlerDeleteTag)
+		})
+	})
+
+	return r
+}
+
+func parseRequest(w http.ResponseWriter, r io.Reader, target any) error {
+	var buf bytes.Buffer
+
+	if n, err := buf.ReadFrom(r); err != nil || n == 0 {
+		w.WriteHeader(http.StatusBadRequest)
+		returnErrorWithCode(w, http.StatusBadRequest, "no body")
+		if err == nil {
+			err = errors.New("no body")
+		}
+		return err
+	}
+	if err := json.Unmarshal(buf.Bytes(), &target); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		returnErrorWithCode(w, http.StatusBadRequest, "invalid input JSON")
+		return err
+	}
+
+	v := validator.New(validator.WithRequiredStructEnabled())
+	if err := v.Struct(target); err != nil {
+		returnErrorWithCode(w, http.StatusBadRequest, "invalid input JSON")
+		return err
+	}
+
+	return nil
+}
+
+func returnErrorWithCode(w http.ResponseWriter, code int, err string) {
+	var resultErr *string
+	if err == "" {
+		resultErr = nil
+	} else {
+		resultErr = &err
+	}
+
+	returnWithCode(
+		w,
+		code,
+		baseResponse{
+			Success: false,
+			Error:   resultErr,
+			Result:  nil,
+		},
+	)
+}
+
+func returnSuccessWithCode(w http.ResponseWriter, code int, body any) {
+	returnWithCode(
+		w,
+		code,
+		baseResponse{
+			Success: true,
+			Result:  body,
+		},
+	)
+}
+
+func returnWithCode(w http.ResponseWriter, code int, body any) {
+	w.WriteHeader(code)
+
+	if body != nil {
+		responseBytes, err := json.Marshal(body)
+		if err != nil {
+			panic(err)
+		}
+		_, err = w.Write(responseBytes)
+		if err != nil {
+			panic(err)
+		}
+	}
+}
+
+func getUUIDFromRequest(r *http.Request, key string) (*uuid.UUID, error) {
+	idString := chi.URLParam(r, key)
+	if idString == "" {
+		return nil, errors.New("no " + key)
+	}
+
+	result, err := uuid.Parse(idString)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
 }
