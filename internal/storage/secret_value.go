@@ -19,7 +19,7 @@ var kindsLoadMap = map[Kind]func(ctx context.Context, tx pgx.Tx, secret *Secret)
 }
 
 type SecretValue interface {
-	SetID(ID uuid.UUID)
+	SetID(id uuid.UUID)
 	CreateValue(ctx context.Context, tx pgx.Tx, secret *Secret) error
 	Kind() Kind
 }
@@ -104,20 +104,20 @@ func (s *SecretCredentials) CreateValue(ctx context.Context, tx pgx.Tx, secret *
 	return err
 }
 
-func (s *SecretBankCard) SetID(ID uuid.UUID) {
-	s.ID = ID
+func (s *SecretBankCard) SetID(id uuid.UUID) {
+	s.ID = id
 }
 
-func (s *SecretBlob) SetID(ID uuid.UUID) {
-	s.ID = ID
+func (s *SecretBlob) SetID(id uuid.UUID) {
+	s.ID = id
 }
 
-func (s *SecretNote) SetID(ID uuid.UUID) {
-	s.ID = ID
+func (s *SecretNote) SetID(id uuid.UUID) {
+	s.ID = id
 }
 
-func (s *SecretCredentials) SetID(ID uuid.UUID) {
-	s.ID = ID
+func (s *SecretCredentials) SetID(id uuid.UUID) {
+	s.ID = id
 }
 
 func (s *SecretBankCard) Kind() Kind {
