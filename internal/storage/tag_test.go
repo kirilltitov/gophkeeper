@@ -8,6 +8,7 @@ import (
 
 	"github.com/kirilltitov/gophkeeper/internal/utils"
 	"github.com/kirilltitov/gophkeeper/internal/utils/rand"
+	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
 func TestPgSQL_AddTag(t *testing.T) {
@@ -62,7 +63,7 @@ func TestPgSQL_LoadSecrets_with_tags(t *testing.T) {
 		UserID: user.ID,
 		Name:   "Card " + rand.RandomString(10),
 		Tags:   Tags{},
-		Kind:   KindBankCard,
+		Kind:   api.KindBankCard,
 		Value: &SecretBankCard{
 			ID:     secretID,
 			Name:   "KIRILL TITOV",

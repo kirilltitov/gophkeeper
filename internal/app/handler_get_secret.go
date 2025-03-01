@@ -8,6 +8,87 @@ import (
 	"github.com/kirilltitov/gophkeeper/internal/utils"
 )
 
+// HandlerGetSecret retrieves secret with value.
+//
+// Example request:
+//
+// GET /api/secret/{ID}
+//
+// Example response:
+//
+//	{
+//	  "success": true,
+//	  "result": {
+//	    "id":           "1ee1416c-d537-6ae0-b6c7-0f48c8929427",
+//	    "user_id":      "1ee06239-36d2-6142-b86b-55c4f2f680df",
+//	    "name":         "my secret card",
+//	    "tags":         ["MIR"],
+//	    "kind":         "bank_card",
+//	    "is_encrypted": true,
+//	    "value": {
+//	      "id":     "1ee1416c-d537-6ae0-b6c7-0f48c8929427",
+//	      "name":   "KIRILL TITOV",
+//	      "number": "1234 5678 9012 3456",
+//	      "date":   "12/34/5678",
+//	      "cvv":    "322"
+//	    }
+//	  },
+//	  "error": null
+//	}
+//
+//	{
+//	  "success": true,
+//	  "result": {
+//	    "id":           "1ee1416c-d537-6ae0-b6c7-0f48c8929427",
+//	    "user_id":      "1ee06239-36d2-6142-b86b-55c4f2f680df",
+//	    "name":         "my secret credentials",
+//	    "tags":         [],
+//	    "kind":         "credentials",
+//	    "is_encrypted": true,
+//	    "value": {
+//	      "id":       "1ee1416c-d537-6ae0-b6c7-0f48c8929427",
+//	      "login":    "frank.strino",
+//	      "password": "secret password",
+//	    }
+//	  },
+//	  "error": null
+//	}
+//
+//	{
+//	  "success": true,
+//	  "result": {
+//	    "id":           "1ee1416c-d537-6ae0-b6c7-0f48c8929427",
+//	    "user_id":      "1ee06239-36d2-6142-b86b-55c4f2f680df",
+//	    "name":         "my secret note",
+//	    "tags":         ["notes", "secret notes"],
+//	    "kind":         "note",
+//	    "is_encrypted": true,
+//	    "value": {
+//	      "id":   "1ee1416c-d537-6ae0-b6c7-0f48c8929427",
+//	      "body": "secret body",
+//	    }
+//	  },
+//	  "error": null
+//	}
+//
+//	{
+//	  "success": true,
+//	  "result": {
+//	    "id":           "1ee1416c-d537-6ae0-b6c7-0f48c8929427",
+//	    "user_id":      "1ee06239-36d2-6142-b86b-55c4f2f680df",
+//	    "name":         "my secret blob",
+//	    "tags":         [],
+//	    "kind":         "blob",
+//	    "is_encrypted": true,
+//	    "value": {
+//	      "id":   "1ee1416c-d537-6ae0-b6c7-0f48c8929427",
+//	      "body": "0JAg0LXRidC1INGPINC/0LjRiNGDINC80YPQt9GL0LrRgyA6KSBodHRwczovL211c2ljLnlhbmRleC5ydS9hbGJ1bS8zMzY2NzE0MC90cmFjay8xMzIwODIwMDM=",
+//	    }
+//	  },
+//	  "error": null
+//	}
+//
+// May response with codes 200, 401, 500.
 func (a *Application) HandlerGetSecret(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 

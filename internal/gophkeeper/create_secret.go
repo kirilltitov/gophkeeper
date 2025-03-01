@@ -7,6 +7,7 @@ import (
 	"github.com/kirilltitov/gophkeeper/internal/utils"
 )
 
+// CreateSecret creates a new secret.
 func (g *Gophkeeper) CreateSecret(ctx context.Context, secret *storage.Secret) error {
 	userID, ok := utils.GetUserID(ctx)
 	if !ok {

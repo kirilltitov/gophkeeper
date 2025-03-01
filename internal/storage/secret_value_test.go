@@ -8,6 +8,7 @@ import (
 
 	"github.com/kirilltitov/gophkeeper/internal/utils"
 	"github.com/kirilltitov/gophkeeper/internal/utils/rand"
+	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
 func TestPgSQL_EditSecretBlob(t *testing.T) {
@@ -22,7 +23,7 @@ func TestPgSQL_EditSecretBlob(t *testing.T) {
 		ID:     secretID,
 		UserID: user.ID,
 		Name:   "Blob " + rand.RandomString(10),
-		Kind:   KindBlob,
+		Kind:   api.KindBlob,
 		Value: &SecretBlob{
 			ID:   secretID,
 			Body: "someblob",
@@ -53,7 +54,7 @@ func TestPgSQL_EditSecretNote(t *testing.T) {
 		ID:     secretID,
 		UserID: user.ID,
 		Name:   "Note " + rand.RandomString(10),
-		Kind:   KindNote,
+		Kind:   api.KindNote,
 		Value: &SecretNote{
 			ID:   secretID,
 			Body: "somenote",
@@ -84,7 +85,7 @@ func TestPgSQL_EditSecretBankCard(t *testing.T) {
 		ID:     secretID,
 		UserID: user.ID,
 		Name:   "Card " + rand.RandomString(10),
-		Kind:   KindBankCard,
+		Kind:   api.KindBankCard,
 		Value: &SecretBankCard{
 			ID:     secretID,
 			Name:   "KIRILL TITOV",
@@ -124,7 +125,7 @@ func TestPgSQL_EditSecretCredentials(t *testing.T) {
 		ID:     secretID,
 		UserID: user.ID,
 		Name:   "Card " + rand.RandomString(10),
-		Kind:   KindCredentials,
+		Kind:   api.KindCredentials,
 		Value: &SecretCredentials{
 			ID:       secretID,
 			Login:    "teonoman",

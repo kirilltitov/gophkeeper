@@ -2,12 +2,35 @@ package app
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/kirilltitov/gophkeeper/internal/gophkeeper"
 	"github.com/kirilltitov/gophkeeper/internal/utils"
 )
 
+// HandlerLogin performs login with given login and password.
+//
+// Example request:
+//
+// POST /api/login
+//
+//	{
+//		"login":    "john.appleseed",
+//		"password": "MoolyFTW",
+//	}
+//
+// Example response:
+//
+//	{
+//		"success": true,
+//		"result":  null,
+//		"error":   null
+//	}
+//
+// Also set a JWT cookie on success.
+//
+// May response with codes 200, 401, 500.
 func (a *Application) HandlerLogin(w http.ResponseWriter, r *http.Request) {
 	log := utils.Log
 
@@ -21,6 +44,7 @@ func (a *Application) HandlerLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	fmt.Printf("about to login user '%s' with password '%s'", req.Login, req.Password) // todo remove
 	user, err := a.Gophkeeper.Login(r.Context(), req.Login, req.Password)
 	if err != nil {
 		log.Errorf("Error while logging in: %v", err)
@@ -44,5 +68,5 @@ func (a *Application) HandlerLogin(w http.ResponseWriter, r *http.Request) {
 
 	http.SetCookie(w, cookie)
 
-	returnSuccessWithCode(w, http.StatusOK, nil)
+	returnEmptySuccessWithCode(w, http.StatusOK)
 }

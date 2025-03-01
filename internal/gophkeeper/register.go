@@ -7,7 +7,7 @@ import (
 	"github.com/kirilltitov/gophkeeper/internal/utils"
 )
 
-// Register Создает нового пользователя с заданным логином и паролем
+// Register creates a new user with given login and password.
 func (g *Gophkeeper) Register(ctx context.Context, login string, rawPassword string) (*storage.User, error) {
 	if login == "" {
 		return nil, ErrEmptyLogin

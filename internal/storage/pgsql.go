@@ -8,10 +8,12 @@ import (
 	"github.com/kirilltitov/gophkeeper/internal/utils"
 )
 
+// PgSQL is an implementation of Storage interface which loads actual records in PostgreSQL DB.
 type PgSQL struct {
-	Conn *pgxpool.Pool
+	Conn *pgxpool.Pool // Conn is a PostgreSQL connection pool.
 }
 
+// New creates and returns a fully configured PgSQL instance.
 func New(ctx context.Context, dsn string) (*PgSQL, error) {
 	conf, err := pgxpool.ParseConfig(dsn)
 	if err != nil {
@@ -29,6 +31,7 @@ func New(ctx context.Context, dsn string) (*PgSQL, error) {
 	return &PgSQL{Conn: pool}, nil
 }
 
+// Close closes all pool connections.
 func (s *PgSQL) Close() {
 	utils.Log.Infof("Closing PgSQL connection")
 	s.Conn.Close()

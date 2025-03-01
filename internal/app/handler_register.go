@@ -9,6 +9,28 @@ import (
 	"github.com/kirilltitov/gophkeeper/internal/utils"
 )
 
+// HandlerRegister registers user in service with given login and password.
+//
+// Example request:
+//
+// POST /api/register
+//
+//	{
+//		"login":    "john.appleseed",
+//		"password": "MoolyFTW",
+//	}
+//
+// Example response:
+//
+//	{
+//		"success": true,
+//		"result":  null,
+//		"error":   null
+//	}
+//
+// Also set a JWT cookie on success.
+//
+// May response with codes 200, 401, 409, 500.
 func (a *Application) HandlerRegister(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
@@ -48,5 +70,5 @@ func (a *Application) HandlerRegister(w http.ResponseWriter, r *http.Request) {
 
 	http.SetCookie(w, cookie)
 
-	returnSuccessWithCode(w, http.StatusOK, nil)
+	returnEmptySuccessWithCode(w, http.StatusOK)
 }

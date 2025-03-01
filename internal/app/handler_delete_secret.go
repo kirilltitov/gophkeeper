@@ -8,6 +8,13 @@ import (
 	"github.com/kirilltitov/gophkeeper/internal/utils"
 )
 
+// HandlerDeleteSecret deletes a secret.
+//
+// Example request:
+//
+// DELETE /api/secret/{ID}
+//
+// May response with codes 200, 401, 500.
 func (a *Application) HandlerDeleteSecret(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -33,5 +40,5 @@ func (a *Application) HandlerDeleteSecret(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	returnSuccessWithCode(w, http.StatusOK, nil)
+	returnEmptySuccessWithCode(w, http.StatusOK)
 }

@@ -6,8 +6,28 @@ import (
 
 	"github.com/kirilltitov/gophkeeper/internal/gophkeeper"
 	"github.com/kirilltitov/gophkeeper/internal/utils"
+	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
+// HandlerDeleteTag deletes a tag from given secret.
+//
+// Example request:
+//
+// DELETE /api/secret/tag/{ID}
+//
+//	{
+//		"tag": "some tag"
+//	}
+//
+// Example response:
+//
+//	{
+//		"success": true,
+//		"result":  null,
+//		"error":   null
+//	}
+//
+// May response with codes 200, 401, 500.
 func (a *Application) HandlerDeleteTag(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -25,7 +45,7 @@ func (a *Application) HandlerDeleteTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req requestTag
+	var req api.TagRequest
 
 	defer r.Body.Close()
 	err = parseRequest(w, r.Body, &req)
@@ -47,5 +67,5 @@ func (a *Application) HandlerDeleteTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	returnSuccessWithCode(w, http.StatusOK, nil)
+	returnEmptySuccessWithCode(w, http.StatusOK)
 }

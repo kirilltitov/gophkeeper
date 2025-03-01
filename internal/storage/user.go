@@ -17,13 +17,15 @@ import (
 	"github.com/kirilltitov/gophkeeper/internal/utils"
 )
 
+// User is a user entity containing all user fields.
 type User struct {
-	ID        uuid.UUID `db:"id"`
-	Login     string    `db:"login"`
-	Password  string    `db:"password"`
-	CreatedAt time.Time `db:"created_at"`
+	ID        uuid.UUID `db:"id"`         // ID is a unique user identifier.
+	Login     string    `db:"login"`      // Login is a unique user login.
+	Password  string    `db:"password"`   // Password is user's hashed password.
+	CreatedAt time.Time `db:"created_at"` // CreatedAt is a date of user creation.
 }
 
+// IsValidPassword returns true if given raw password is equal to hashed user password upon hashing.
 func (u *User) IsValidPassword(password string) bool {
 	return u.getHashedPassword(password) == u.Password
 }
@@ -42,6 +44,7 @@ func (u *User) getHashedPassword(rawPassword string) string {
 	return result
 }
 
+// NewUser creates and returns a new configured user.
 func NewUser(id uuid.UUID, login string, rawPassword string) User {
 	user := User{
 		ID:        id,
@@ -78,12 +81,23 @@ func createUser(ctx context.Context, tx pgx.Tx, user User) error {
 	return nil
 }
 
+// LoadUser loads a user from DB for given login.
 func (s *PgSQL) LoadUser(ctx context.Context, login string) (*User, error) {
 	return WithTransaction(ctx, s, func(tx pgx.Tx) (*User, error) {
-		return loadUser(ctx, tx, login)
+		user, err := loadUser(ctx, tx, login)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := tx.Commit(ctx); err != nil {
+			return nil, err
+		}
+
+		return user, nil
 	})
 }
 
+// CreateUser creates a new user in DB.
 func (s *PgSQL) CreateUser(ctx context.Context, user User) error {
 	return WithVoidTransaction(ctx, s, func(tx pgx.Tx) error {
 		if err := createUser(ctx, tx, user); err != nil {
@@ -94,10 +108,6 @@ func (s *PgSQL) CreateUser(ctx context.Context, user User) error {
 			return err
 		}
 
-		if err := tx.Commit(ctx); err != nil {
-			return err
-		}
-
-		return nil
+		return tx.Commit(ctx)
 	})
 }

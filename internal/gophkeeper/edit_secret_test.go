@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/kirilltitov/gophkeeper/pkg/api"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 
@@ -27,7 +28,7 @@ func TestGophkeeper_EditSecretCredentials(t *testing.T) {
 	secret := storage.Secret{
 		ID:     utils.NewUUID6(),
 		UserID: user.ID,
-		Kind:   storage.KindCredentials,
+		Kind:   api.KindCredentials,
 	}
 
 	tests := []struct {
@@ -76,7 +77,7 @@ func TestGophkeeper_EditSecretCredentials(t *testing.T) {
 				s := mockStorage.NewMockStorage(t)
 
 				wrongKindSecret := secret
-				wrongKindSecret.Kind = storage.KindBlob
+				wrongKindSecret.Kind = api.KindBlob
 				s.
 					EXPECT().
 					LoadSecretByID(mock.Anything, mock.Anything).
@@ -123,7 +124,7 @@ func TestGophkeeper_EditSecretBankCard(t *testing.T) {
 	secret := storage.Secret{
 		ID:     utils.NewUUID6(),
 		UserID: user.ID,
-		Kind:   storage.KindBankCard,
+		Kind:   api.KindBankCard,
 	}
 
 	tests := []struct {
@@ -172,7 +173,7 @@ func TestGophkeeper_EditSecretBankCard(t *testing.T) {
 				s := mockStorage.NewMockStorage(t)
 
 				wrongKindSecret := secret
-				wrongKindSecret.Kind = storage.KindBlob
+				wrongKindSecret.Kind = api.KindBlob
 				s.
 					EXPECT().
 					LoadSecretByID(mock.Anything, mock.Anything).
@@ -226,7 +227,7 @@ func TestGophkeeper_EditSecretBlob(t *testing.T) {
 	secret := storage.Secret{
 		ID:     utils.NewUUID6(),
 		UserID: user.ID,
-		Kind:   storage.KindBlob,
+		Kind:   api.KindBlob,
 	}
 
 	tests := []struct {
@@ -275,7 +276,7 @@ func TestGophkeeper_EditSecretBlob(t *testing.T) {
 				s := mockStorage.NewMockStorage(t)
 
 				wrongKindSecret := secret
-				wrongKindSecret.Kind = storage.KindCredentials
+				wrongKindSecret.Kind = api.KindCredentials
 				s.
 					EXPECT().
 					LoadSecretByID(mock.Anything, mock.Anything).
@@ -326,7 +327,7 @@ func TestGophkeeper_EditSecretNote(t *testing.T) {
 	secret := storage.Secret{
 		ID:     utils.NewUUID6(),
 		UserID: user.ID,
-		Kind:   storage.KindNote,
+		Kind:   api.KindNote,
 	}
 
 	tests := []struct {
@@ -375,7 +376,7 @@ func TestGophkeeper_EditSecretNote(t *testing.T) {
 				s := mockStorage.NewMockStorage(t)
 
 				wrongKindSecret := secret
-				wrongKindSecret.Kind = storage.KindCredentials
+				wrongKindSecret.Kind = api.KindCredentials
 				s.
 					EXPECT().
 					LoadSecretByID(mock.Anything, mock.Anything).

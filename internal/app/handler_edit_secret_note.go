@@ -4,8 +4,28 @@ import (
 	"net/http"
 
 	"github.com/kirilltitov/gophkeeper/internal/utils"
+	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
+// HandlerEditSecretNote edits a secret note.
+//
+// Example request:
+//
+// POST /api/secret/edit/note/{ID}
+//
+//	{
+//		"body": "updated note"
+//	}
+//
+// Example response:
+//
+//	{
+//		"success": true,
+//		"result":  null,
+//		"error":   null
+//	}
+//
+// May response with codes 200, 401, 500.
 func (a *Application) HandlerEditSecretNote(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -23,7 +43,7 @@ func (a *Application) HandlerEditSecretNote(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	var req requestNote
+	var req api.SecretNote
 
 	defer r.Body.Close()
 	err = parseRequest(w, r.Body, &req)
@@ -42,5 +62,5 @@ func (a *Application) HandlerEditSecretNote(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	returnSuccessWithCode(w, http.StatusOK, nil)
+	returnEmptySuccessWithCode(w, http.StatusOK)
 }

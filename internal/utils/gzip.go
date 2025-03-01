@@ -17,7 +17,7 @@ type gzipWriter struct {
 	Writer io.Writer
 }
 
-// Write записывает в свой буффер переданный массив байтов.
+// Write writes a given bytes slice to an internal buffer.
 func (w gzipWriter) Write(b []byte) (int, error) {
 	return w.Writer.Write(b)
 }
@@ -39,12 +39,12 @@ func newCompressReader(r io.ReadCloser) (*gzipReader, error) {
 	}, nil
 }
 
-// Read читает байты из своего буфера и записывает их в переданный массив, возвращая количество прочитанных байтов.
+// Read reads bytes from internal buffer and puts them into given slice, returning read bytes number and optional error.
 func (c *gzipReader) Read(p []byte) (n int, err error) {
 	return c.zr.Read(p)
 }
 
-// Close закрывает свой буфер.
+// Close closes internal buffer.
 func (c *gzipReader) Close() error {
 	if err := c.r.Close(); err != nil {
 		return err
@@ -52,7 +52,7 @@ func (c *gzipReader) Close() error {
 	return c.zr.Close()
 }
 
-// GzipHandle осуществляет сжатие/распаковку запросов и ответов переданной функции обработки HTTP-запросов.
+// GzipHandle performs compression/decompression of requests and responses of given HTTP-handler.
 func GzipHandle(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ow := w

@@ -21,6 +21,7 @@ import (
 	"github.com/kirilltitov/gophkeeper/internal/storage"
 	mockStorage "github.com/kirilltitov/gophkeeper/internal/storage/mocks"
 	"github.com/kirilltitov/gophkeeper/internal/utils"
+	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
 func TestApplication_HandlerEditSecretNote(t *testing.T) {
@@ -115,7 +116,7 @@ func TestApplication_HandlerEditSecretNote(t *testing.T) {
 					s.
 						EXPECT().
 						LoadSecretByID(mock.Anything, mock.Anything).
-						Return(&storage.Secret{UserID: userID, Kind: storage.KindNote}, nil)
+						Return(&storage.Secret{UserID: userID, Kind: api.KindNote}, nil)
 					s.
 						EXPECT().
 						EditSecretNote(mock.Anything, mock.Anything, mock.Anything).

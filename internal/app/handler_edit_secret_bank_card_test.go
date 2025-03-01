@@ -21,6 +21,7 @@ import (
 	"github.com/kirilltitov/gophkeeper/internal/storage"
 	mockStorage "github.com/kirilltitov/gophkeeper/internal/storage/mocks"
 	"github.com/kirilltitov/gophkeeper/internal/utils"
+	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
 func TestApplication_HandlerEditSecretBankCard(t *testing.T) {
@@ -118,7 +119,7 @@ func TestApplication_HandlerEditSecretBankCard(t *testing.T) {
 					s.
 						EXPECT().
 						LoadSecretByID(mock.Anything, mock.Anything).
-						Return(&storage.Secret{UserID: userID, Kind: storage.KindBankCard}, nil)
+						Return(&storage.Secret{UserID: userID, Kind: api.KindBankCard}, nil)
 					s.
 						EXPECT().
 						EditSecretBankCard(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).

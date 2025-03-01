@@ -5,22 +5,25 @@ import (
 	"strconv"
 )
 
+// Config contains all configuration fields of the service.
 type Config struct {
-	ServerAddress string
-	DatabaseDSN   string
-	TLSCertFile   string
-	TLSKeyFile    string
-	JWTCookieName string
-	JWTSecret     string
-	JWTTimeToLive int
+	ServerAddress string // Protocol, host and port for HTTP server to bind.
+	DatabaseDSN   string // A DSN for database connection.
+	TLSCertFile   string // TLS certificate file path.
+	TLSKeyFile    string // TLS key file path.
+	JWTCookieName string // Auth cookie name.
+	JWTSecret     string // A secret for JWT signing.
+	JWTTimeToLive int    // Time (in seconds) for JWT expiration configuration.
 }
 
+// New creates and returns a new fully set config.
 func New() *Config {
 	ParseFlags()
 
 	return NewWithoutParsing()
 }
 
+// NewWithoutParsing creates and returns a new config without parsing cmd flags.
 func NewWithoutParsing() *Config {
 	return &Config{
 		ServerAddress: getServerAddress(),
@@ -33,6 +36,7 @@ func NewWithoutParsing() *Config {
 	}
 }
 
+// IsTLSEnabled returns true if both TLS cert/key are provided.
 func (c *Config) IsTLSEnabled() bool {
 	return c.TLSKeyFile != "" && c.TLSCertFile != ""
 }

@@ -4,8 +4,31 @@ import (
 	"net/http"
 
 	"github.com/kirilltitov/gophkeeper/internal/utils"
+	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
+// HandlerEditSecretBankCard edits a secret bank card.
+//
+// Example request:
+//
+// POST /api/secret/edit/bank_card/{ID}
+//
+//	{
+//		"name":   "NAME SURNAME",
+//		"number": "1234 5678 9012 3456",
+//		"date":   "12/34",
+//		"cvv":    "322"
+//	}
+//
+// Example response:
+//
+//	{
+//		"success": true,
+//		"result":  null,
+//		"error":   null
+//	}
+//
+// May response with codes 200, 401, 500.
 func (a *Application) HandlerEditSecretBankCard(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -23,7 +46,7 @@ func (a *Application) HandlerEditSecretBankCard(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	var req requestBankCard
+	var req api.SecretBankCard
 
 	defer r.Body.Close()
 	err = parseRequest(w, r.Body, &req)
@@ -45,5 +68,5 @@ func (a *Application) HandlerEditSecretBankCard(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	returnSuccessWithCode(w, http.StatusOK, nil)
+	returnEmptySuccessWithCode(w, http.StatusOK)
 }

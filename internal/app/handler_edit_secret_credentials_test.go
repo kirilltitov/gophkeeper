@@ -21,6 +21,7 @@ import (
 	"github.com/kirilltitov/gophkeeper/internal/storage"
 	mockStorage "github.com/kirilltitov/gophkeeper/internal/storage/mocks"
 	"github.com/kirilltitov/gophkeeper/internal/utils"
+	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
 func TestApplication_HandlerEditSecretCredentials(t *testing.T) {
@@ -116,7 +117,7 @@ func TestApplication_HandlerEditSecretCredentials(t *testing.T) {
 					s.
 						EXPECT().
 						LoadSecretByID(mock.Anything, mock.Anything).
-						Return(&storage.Secret{UserID: userID, Kind: storage.KindCredentials}, nil)
+						Return(&storage.Secret{UserID: userID, Kind: api.KindCredentials}, nil)
 					s.
 						EXPECT().
 						EditSecretCredentials(mock.Anything, mock.Anything, mock.Anything, mock.Anything).

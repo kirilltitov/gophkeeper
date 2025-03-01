@@ -90,6 +90,7 @@ func TestApplication_HandlerCreateSecretBankCard(t *testing.T) {
 				body: `
 					{
 						"name": "secret bank card",
+						"is_encrypted": false,
 						"value": {
 							"name": "foo",
 							"number": "bar",
@@ -119,6 +120,7 @@ func TestApplication_HandlerCreateSecretBankCard(t *testing.T) {
 				body: `
 					{
 						"name": "secret bank card",
+						"is_encrypted": false,
 						"value": {
 							"name": "foo",
 							"number": "bar",

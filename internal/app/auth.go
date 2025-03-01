@@ -9,12 +9,12 @@ import (
 
 	"github.com/kirilltitov/gophkeeper/internal/storage"
 	"github.com/kirilltitov/gophkeeper/internal/utils"
+	"github.com/kirilltitov/gophkeeper/pkg/auth"
 )
 
-type Claims struct {
-	jwt.RegisteredClaims
-}
-
+// WithAuthorization is a middleware for an HTTP server authorizing user with a JWT cookie.
+// If successful, user ID is set to Context under [utils.CtxUserIDKey] key.
+// This user ID must be trusted.
 func (a *Application) WithAuthorization(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if userID := a.authorize(r); userID != nil {
@@ -26,6 +26,23 @@ func (a *Application) WithAuthorization(next http.Handler) http.Handler {
 	})
 }
 
+// CreateAuthCookie creates and returns a new authorization cookie with a signed JWT.
+func (a *Application) CreateAuthCookie(user storage.User) (*http.Cookie, error) {
+	cfg := a.Gophkeeper.Config
+
+	exp := time.Now().Add(time.Second * time.Duration(cfg.JWTTimeToLive))
+	token, err := a.getJWT(user, exp)
+	if err != nil {
+		return nil, err
+	}
+
+	return &http.Cookie{
+		Name:    cfg.JWTCookieName,
+		Value:   token,
+		Expires: exp,
+	}, nil
+}
+
 func (a *Application) authorize(r *http.Request) *uuid.UUID {
 	cfg := a.Gophkeeper.Config
 
@@ -35,7 +52,7 @@ func (a *Application) authorize(r *http.Request) *uuid.UUID {
 		return nil
 	}
 
-	claims := &Claims{}
+	claims := &auth.Claims{}
 
 	token, err := jwt.ParseWithClaims(cookie.Value, claims, func(t *jwt.Token) (interface{}, error) {
 		return []byte(cfg.JWTSecret), nil
@@ -65,31 +82,16 @@ func (a *Application) authorize(r *http.Request) *uuid.UUID {
 func (a *Application) getJWT(user storage.User, exp time.Time) (string, error) {
 	token := jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
-		Claims{
+		auth.Claims{
 			RegisteredClaims: jwt.RegisteredClaims{
 				ID:        utils.NewUUID6().String(),
 				Subject:   user.ID.String(),
 				IssuedAt:  jwt.NewNumericDate(time.Now()),
 				ExpiresAt: jwt.NewNumericDate(exp),
 			},
+			Login: user.Login,
 		},
 	)
 
 	return token.SignedString([]byte(a.Gophkeeper.Config.JWTSecret))
-}
-
-func (a *Application) CreateAuthCookie(user storage.User) (*http.Cookie, error) {
-	cfg := a.Gophkeeper.Config
-
-	exp := time.Now().Add(time.Second * time.Duration(cfg.JWTTimeToLive))
-	token, err := a.getJWT(user, exp)
-	if err != nil {
-		return nil, err
-	}
-
-	return &http.Cookie{
-		Name:    cfg.JWTCookieName,
-		Value:   token,
-		Expires: exp,
-	}, nil
 }

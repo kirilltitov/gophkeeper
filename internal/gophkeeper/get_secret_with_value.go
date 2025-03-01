@@ -9,6 +9,7 @@ import (
 	"github.com/kirilltitov/gophkeeper/internal/utils"
 )
 
+// GetSecretWithValueByName tries to find a secret by name.
 func (g *Gophkeeper) GetSecretWithValueByName(
 	ctx context.Context,
 	name string,
@@ -21,6 +22,7 @@ func (g *Gophkeeper) GetSecretWithValueByName(
 	return g.Container.Storage.LoadSecretByName(ctx, userID, name)
 }
 
+// GetSecretWithValueByID tries to find a secret by ID.
 func (g *Gophkeeper) GetSecretWithValueByID(
 	ctx context.Context,
 	secretID uuid.UUID,

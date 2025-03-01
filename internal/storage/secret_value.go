@@ -9,23 +9,27 @@ import (
 	"github.com/jackc/pgx/v5"
 
 	"github.com/kirilltitov/gophkeeper/internal/utils"
+	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
-var kindsLoadMap = map[Kind]func(ctx context.Context, tx pgx.Tx, secret *Secret) (SecretValue, error){
-	KindCredentials: loadSecretCredentialsValue,
-	KindNote:        loadSecretNoteValue,
-	KindBlob:        loadSecretBlobValue,
-	KindBankCard:    loadSecretBankCardValue,
+// kindsLoadMap contains a mapping of all kinds (see [api.Kinds]) to their respective loading functions.
+var kindsLoadMap = map[api.Kind]func(ctx context.Context, tx pgx.Tx, secret *Secret) (SecretValue, error){
+	api.KindCredentials: loadSecretCredentialsValue,
+	api.KindNote:        loadSecretNoteValue,
+	api.KindBlob:        loadSecretBlobValue,
+	api.KindBankCard:    loadSecretBankCardValue,
 }
 
+// SecretValue is an interface defining all common methods for all kinds of secrets (see [api.Kinds]).
 type SecretValue interface {
 	SetID(id uuid.UUID)
 	CreateValue(ctx context.Context, tx pgx.Tx, secret *Secret) error
-	Kind() Kind
+	Kind() api.Kind
 }
 
+// EditSecretCredentials edits secret credentials with new values.
 func (s *PgSQL) EditSecretCredentials(ctx context.Context, secret *Secret, login string, password string) error {
-	if secret.Kind != KindCredentials {
+	if secret.Kind != api.KindCredentials {
 		return ErrWrongKind
 	}
 
@@ -34,8 +38,9 @@ func (s *PgSQL) EditSecretCredentials(ctx context.Context, secret *Secret, login
 	return err
 }
 
+// EditSecretNote edits secret note with new values.
 func (s *PgSQL) EditSecretNote(ctx context.Context, secret *Secret, body string) error {
-	if secret.Kind != KindNote {
+	if secret.Kind != api.KindNote {
 		return ErrWrongKind
 	}
 
@@ -44,8 +49,9 @@ func (s *PgSQL) EditSecretNote(ctx context.Context, secret *Secret, body string)
 	return err
 }
 
+// EditSecretBlob edits secret blob with new values.
 func (s *PgSQL) EditSecretBlob(ctx context.Context, secret *Secret, body string) error {
-	if secret.Kind != KindBlob {
+	if secret.Kind != api.KindBlob {
 		return ErrWrongKind
 	}
 
@@ -54,8 +60,9 @@ func (s *PgSQL) EditSecretBlob(ctx context.Context, secret *Secret, body string)
 	return err
 }
 
+// EditSecretBankCard edits secret bank card with new values.
 func (s *PgSQL) EditSecretBankCard(ctx context.Context, secret *Secret, name, number, date, cvv string) error {
-	if secret.Kind != KindBankCard {
+	if secret.Kind != api.KindBankCard {
 		return ErrWrongKind
 	}
 
@@ -64,8 +71,9 @@ func (s *PgSQL) EditSecretBankCard(ctx context.Context, secret *Secret, name, nu
 	return err
 }
 
+// CreateValue creates a new secret value.
 func (s *SecretBankCard) CreateValue(ctx context.Context, tx pgx.Tx, secret *Secret) error {
-	if secret.Kind != KindBankCard {
+	if secret.Kind != api.KindBankCard {
 		return ErrWrongKind
 	}
 
@@ -74,8 +82,9 @@ func (s *SecretBankCard) CreateValue(ctx context.Context, tx pgx.Tx, secret *Sec
 	return err
 }
 
+// CreateValue creates a new secret value.
 func (s *SecretBlob) CreateValue(ctx context.Context, tx pgx.Tx, secret *Secret) error {
-	if secret.Kind != KindBlob {
+	if secret.Kind != api.KindBlob {
 		return ErrWrongKind
 	}
 
@@ -84,8 +93,9 @@ func (s *SecretBlob) CreateValue(ctx context.Context, tx pgx.Tx, secret *Secret)
 	return err
 }
 
+// CreateValue creates a new secret value.
 func (s *SecretNote) CreateValue(ctx context.Context, tx pgx.Tx, secret *Secret) error {
-	if secret.Kind != KindNote {
+	if secret.Kind != api.KindNote {
 		return ErrWrongKind
 	}
 
@@ -94,8 +104,9 @@ func (s *SecretNote) CreateValue(ctx context.Context, tx pgx.Tx, secret *Secret)
 	return err
 }
 
+// CreateValue creates a new secret value.
 func (s *SecretCredentials) CreateValue(ctx context.Context, tx pgx.Tx, secret *Secret) error {
-	if secret.Kind != KindCredentials {
+	if secret.Kind != api.KindCredentials {
 		return ErrWrongKind
 	}
 
@@ -104,36 +115,44 @@ func (s *SecretCredentials) CreateValue(ctx context.Context, tx pgx.Tx, secret *
 	return err
 }
 
+// SetID sets parent secret ID to secret value.
 func (s *SecretBankCard) SetID(id uuid.UUID) {
 	s.ID = id
 }
 
+// SetID sets parent secret ID to secret value.
 func (s *SecretBlob) SetID(id uuid.UUID) {
 	s.ID = id
 }
 
+// SetID sets parent secret ID to secret value.
 func (s *SecretNote) SetID(id uuid.UUID) {
 	s.ID = id
 }
 
+// SetID sets parent secret ID to secret value.
 func (s *SecretCredentials) SetID(id uuid.UUID) {
 	s.ID = id
 }
 
-func (s *SecretBankCard) Kind() Kind {
-	return KindBankCard
+// Kind returns a kind of current secret value.
+func (s *SecretBankCard) Kind() api.Kind {
+	return api.KindBankCard
 }
 
-func (s *SecretBlob) Kind() Kind {
-	return KindBlob
+// Kind returns a kind of current secret value.
+func (s *SecretBlob) Kind() api.Kind {
+	return api.KindBlob
 }
 
-func (s *SecretNote) Kind() Kind {
-	return KindNote
+// Kind returns a kind of current secret value.
+func (s *SecretNote) Kind() api.Kind {
+	return api.KindNote
 }
 
-func (s *SecretCredentials) Kind() Kind {
-	return KindCredentials
+// Kind returns a kind of current secret value.
+func (s *SecretCredentials) Kind() api.Kind {
+	return api.KindCredentials
 }
 
 func loadSecretValue(ctx context.Context, tx pgx.Tx, secret *Secret) (SecretValue, error) {

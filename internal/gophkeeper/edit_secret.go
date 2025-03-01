@@ -5,8 +5,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/kirilltitov/gophkeeper/internal/storage"
+	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
+// EditSecretCredentials edits existing secret credentials.
 func (g *Gophkeeper) EditSecretCredentials(
 	ctx context.Context,
 	secretID uuid.UUID,
@@ -17,13 +19,14 @@ func (g *Gophkeeper) EditSecretCredentials(
 		return err
 	}
 
-	if secret.Kind != storage.KindCredentials {
+	if secret.Kind != api.KindCredentials {
 		return storage.ErrWrongKind
 	}
 
 	return g.Container.Storage.EditSecretCredentials(ctx, secret, login, password)
 }
 
+// EditSecretNote edits existing secret note.
 func (g *Gophkeeper) EditSecretNote(
 	ctx context.Context,
 	secretID uuid.UUID,
@@ -34,13 +37,14 @@ func (g *Gophkeeper) EditSecretNote(
 		return err
 	}
 
-	if secret.Kind != storage.KindNote {
+	if secret.Kind != api.KindNote {
 		return storage.ErrWrongKind
 	}
 
 	return g.Container.Storage.EditSecretNote(ctx, secret, body)
 }
 
+// EditSecretBlob edits existing secret blob.
 func (g *Gophkeeper) EditSecretBlob(
 	ctx context.Context,
 	secretID uuid.UUID,
@@ -51,13 +55,14 @@ func (g *Gophkeeper) EditSecretBlob(
 		return err
 	}
 
-	if secret.Kind != storage.KindBlob {
+	if secret.Kind != api.KindBlob {
 		return storage.ErrWrongKind
 	}
 
 	return g.Container.Storage.EditSecretBlob(ctx, secret, body)
 }
 
+// EditSecretBankCard edits existing secret bank card.
 func (g *Gophkeeper) EditSecretBankCard(
 	ctx context.Context,
 	secretID uuid.UUID,
@@ -68,7 +73,7 @@ func (g *Gophkeeper) EditSecretBankCard(
 		return err
 	}
 
-	if secret.Kind != storage.KindBankCard {
+	if secret.Kind != api.KindBankCard {
 		return storage.ErrWrongKind
 	}
 

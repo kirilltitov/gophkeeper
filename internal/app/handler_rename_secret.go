@@ -8,6 +8,27 @@ import (
 	"github.com/kirilltitov/gophkeeper/internal/utils"
 )
 
+// HandlerRenameSecret renames an existing secret.
+//
+// Example request:
+//
+// POST /api/secret/{ID}/rename
+//
+//	{
+//		"name": "new name"
+//	}
+//
+// Example response:
+//
+//	{
+//		"success": true,
+//		"result":  null,
+//		"error":   null
+//	}
+//
+// Also set a JWT cookie on success.
+//
+// May response with codes 200, 401, 409, 500.
 func (a *Application) HandlerRenameSecret(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -45,5 +66,5 @@ func (a *Application) HandlerRenameSecret(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	returnSuccessWithCode(w, http.StatusOK, nil)
+	returnEmptySuccessWithCode(w, http.StatusOK)
 }

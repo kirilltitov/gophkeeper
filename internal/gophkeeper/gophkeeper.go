@@ -11,13 +11,13 @@ import (
 	"github.com/kirilltitov/gophkeeper/internal/utils"
 )
 
-// Gophkeeper является объектом, инкапсулирующим в себе бизнес-логику сервиса по хранению секретов.
+// Gophkeeper is object encapsulating all business logic of Gophkeeper service.
 type Gophkeeper struct {
-	Config    *config.Config
-	Container *container.Container
+	Config    *config.Config       // Config is service configuration.
+	Container *container.Container // Container contains all service dependencies.
 }
 
-// New создает, конфигурирует и возвращает экземпляр объекта сервиса.
+// New creates and returns a new instance of Gophkeeper instance.
 func New(cfg *config.Config, cnt *container.Container) *Gophkeeper {
 	return &Gophkeeper{Config: cfg, Container: cnt}
 }

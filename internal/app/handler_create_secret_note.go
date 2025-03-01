@@ -8,8 +8,34 @@ import (
 
 	"github.com/kirilltitov/gophkeeper/internal/storage"
 	"github.com/kirilltitov/gophkeeper/internal/utils"
+	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
+// HandlerCreateSecretNote creates a new secret note (plain text).
+//
+// Example request:
+//
+// POST /api/secret/create/note
+//
+//	{
+//		"name": "secret name",
+//		"is_encrypted": true,
+//		"value": {
+//			"body": "some secret note"
+//		}
+//	}
+//
+// Example response:
+//
+//	{
+//		"success": true,
+//		"result":  {
+//	     	"id": "1ee1416c-d537-6ae0-b6c7-0f48c8929427"
+//		},
+//		"error":   null
+//	}
+//
+// May response with codes 201, 401, 409, 500.
 func (a *Application) HandlerCreateSecretNote(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -21,10 +47,7 @@ func (a *Application) HandlerCreateSecretNote(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	var req struct {
-		Name  string      `json:"name" validate:"required"`
-		Value requestNote `json:"value" validate:"required"`
-	}
+	var req api.BaseCreateSecretRequest[api.SecretNote]
 	type response struct {
 		ID uuid.UUID `json:"id"`
 	}
@@ -36,7 +59,8 @@ func (a *Application) HandlerCreateSecretNote(w http.ResponseWriter, r *http.Req
 	}
 
 	secret := &storage.Secret{
-		Name: req.Name,
+		Name:        req.Name,
+		IsEncrypted: req.IsEncrypted,
 		Value: &storage.SecretNote{
 			Body: req.Value.Body,
 		},
@@ -52,5 +76,5 @@ func (a *Application) HandlerCreateSecretNote(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	returnSuccessWithCode(w, http.StatusCreated, response{ID: secret.ID})
+	returnSuccessWithCode[api.CreatedSecretResponse](w, http.StatusCreated, &api.CreatedSecretResponse{ID: secret.ID})
 }

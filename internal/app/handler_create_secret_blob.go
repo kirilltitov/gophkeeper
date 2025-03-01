@@ -8,8 +8,35 @@ import (
 
 	"github.com/kirilltitov/gophkeeper/internal/storage"
 	"github.com/kirilltitov/gophkeeper/internal/utils"
+	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
+// HandlerCreateSecretBlob creates a new secret blob.
+// Binary data MUST BE in ASCII form, base64 is preferred.
+//
+// Example request:
+//
+// POST /api/secret/create/blob
+//
+//	{
+//		"name": "secret name",
+//		"is_encrypted": true,
+//		"value": {
+//			"body": "0JrQsNC60L7QuS3RgtC+INCx0LXQudC3NjQg0L3QsNC/0YDQuNC80LXRgA=="
+//		}
+//	}
+//
+// Example response:
+//
+//	{
+//		"success": true,
+//		"result":  {
+//	     	"id": "1ee1416c-d537-6ae0-b6c7-0f48c8929427"
+//		},
+//		"error":   null
+//	}
+//
+// May response with codes 201, 401, 409, 500.
 func (a *Application) HandlerCreateSecretBlob(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -21,10 +48,7 @@ func (a *Application) HandlerCreateSecretBlob(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	var req struct {
-		Name  string      `json:"name" validate:"required"`
-		Value requestBlob `json:"value" validate:"required"`
-	}
+	var req api.BaseCreateSecretRequest[api.SecretBlob]
 	type response struct {
 		ID uuid.UUID `json:"id"`
 	}
@@ -36,7 +60,8 @@ func (a *Application) HandlerCreateSecretBlob(w http.ResponseWriter, r *http.Req
 	}
 
 	secret := &storage.Secret{
-		Name: req.Name,
+		Name:        req.Name,
+		IsEncrypted: req.IsEncrypted,
 		Value: &storage.SecretBlob{
 			Body: req.Value.Body,
 		},
@@ -52,5 +77,5 @@ func (a *Application) HandlerCreateSecretBlob(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	returnSuccessWithCode(w, http.StatusCreated, response{ID: secret.ID})
+	returnSuccessWithCode[api.CreatedSecretResponse](w, http.StatusCreated, &api.CreatedSecretResponse{ID: secret.ID})
 }

@@ -4,12 +4,37 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/google/uuid"
-
 	"github.com/kirilltitov/gophkeeper/internal/storage"
 	"github.com/kirilltitov/gophkeeper/internal/utils"
+	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
+// HandlerCreateSecretCredentials creates a new secret credentials.
+//
+// Example request:
+//
+// POST /api/secret/create/credentials
+//
+//	{
+//		"name": "secret name",
+//		"is_encrypted": true,
+//		"value": {
+//			"login":    "frank_strino",
+//			"password": "secret_pass",
+//		}
+//	}
+//
+// Example response:
+//
+//	{
+//		"success": true,
+//		"result":  {
+//	     	"id": "1ee1416c-d537-6ae0-b6c7-0f48c8929427"
+//		},
+//		"error":   null
+//	}
+//
+// May response with codes 201, 401, 409, 500.
 func (a *Application) HandlerCreateSecretCredentials(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -21,13 +46,7 @@ func (a *Application) HandlerCreateSecretCredentials(w http.ResponseWriter, r *h
 		return
 	}
 
-	var req struct {
-		Name  string             `json:"name" validate:"required"`
-		Value requestCredentials `json:"value" validate:"required"`
-	}
-	type response struct {
-		ID uuid.UUID `json:"id"`
-	}
+	var req api.BaseCreateSecretRequest[api.SecretCredentials]
 
 	defer r.Body.Close()
 	err = parseRequest(w, r.Body, &req)
@@ -36,7 +55,8 @@ func (a *Application) HandlerCreateSecretCredentials(w http.ResponseWriter, r *h
 	}
 
 	secret := &storage.Secret{
-		Name: req.Name,
+		Name:        req.Name,
+		IsEncrypted: req.IsEncrypted,
 		Value: &storage.SecretCredentials{
 			Login:    req.Value.Login,
 			Password: req.Value.Password,
@@ -53,5 +73,5 @@ func (a *Application) HandlerCreateSecretCredentials(w http.ResponseWriter, r *h
 		return
 	}
 
-	returnSuccessWithCode(w, http.StatusCreated, response{ID: secret.ID})
+	returnSuccessWithCode[api.CreatedSecretResponse](w, http.StatusCreated, &api.CreatedSecretResponse{ID: secret.ID})
 }

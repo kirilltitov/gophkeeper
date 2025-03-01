@@ -19,6 +19,7 @@ import (
 	"github.com/kirilltitov/gophkeeper/internal/storage"
 	mockStorage "github.com/kirilltitov/gophkeeper/internal/storage/mocks"
 	"github.com/kirilltitov/gophkeeper/internal/utils"
+	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
 func TestApplication_HandlerGetSecrets(t *testing.T) {
@@ -69,22 +70,24 @@ func TestApplication_HandlerGetSecrets(t *testing.T) {
 					secret2ID := utils.NewUUID6()
 					result := []storage.Secret{
 						{
-							ID:     secret1ID,
-							UserID: userID,
-							Name:   "foo",
-							Tags:   storage.Tags{"bar", "baz"},
-							Kind:   storage.KindNote,
+							ID:          secret1ID,
+							UserID:      userID,
+							Name:        "foo",
+							Tags:        storage.Tags{"bar", "baz"},
+							Kind:        api.KindNote,
+							IsEncrypted: false,
 							Value: &storage.SecretNote{
 								ID:   secret1ID,
 								Body: "foo body",
 							},
 						},
 						{
-							ID:     secret2ID,
-							UserID: userID,
-							Name:   "foo",
-							Tags:   storage.Tags{},
-							Kind:   storage.KindCredentials,
+							ID:          secret2ID,
+							UserID:      userID,
+							Name:        "foo",
+							Tags:        storage.Tags{},
+							Kind:        api.KindCredentials,
+							IsEncrypted: false,
 							Value: &storage.SecretCredentials{
 								ID:       secret2ID,
 								Login:    "teonoman",
@@ -112,6 +115,7 @@ func TestApplication_HandlerGetSecrets(t *testing.T) {
 								"name": "foo",
 								"tags": ["bar","baz"],
 								"kind": "note",
+								"is_encrypted": false,
 								"value": {
 									"id": "<<PRESENCE>>",
 									"body": "foo body"
@@ -123,6 +127,7 @@ func TestApplication_HandlerGetSecrets(t *testing.T) {
 								"name": "foo",
 								"tags": [],
 								"kind": "credentials",
+								"is_encrypted": false,
 								"value": {
 									"id": "<<PRESENCE>>",
 									"login": "teonoman",

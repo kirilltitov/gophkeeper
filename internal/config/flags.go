@@ -3,6 +3,8 @@ package config
 import (
 	"flag"
 	"fmt"
+
+	"github.com/kirilltitov/gophkeeper/pkg/auth"
 )
 
 const defaultPort = 8081
@@ -11,10 +13,11 @@ var flagBind = fmt.Sprintf(":%d", defaultPort)
 var flagDatabaseDSN = "postgres://postgres:mysecretpassword@127.0.0.1:5432/gophkeeper"
 var tlsCertFile = ""
 var tlsKeyFile = ""
-var jwtCookieName = "access_token"
+var jwtCookieName = auth.DefaultCookieName
 var jwtSecret = "hesoyam"
 var jwtTimeToLive int = 86400
 
+// ParseFlags parses CLI flags.
 func ParseFlags() {
 	flag.StringVar(&flagBind, "bind", flagBind, "Host and port to bind")
 	flag.StringVar(&flagDatabaseDSN, "dsn", flagDatabaseDSN, "Database DSN")

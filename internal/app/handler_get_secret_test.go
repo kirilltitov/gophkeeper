@@ -20,6 +20,7 @@ import (
 	"github.com/kirilltitov/gophkeeper/internal/storage"
 	mockStorage "github.com/kirilltitov/gophkeeper/internal/storage/mocks"
 	"github.com/kirilltitov/gophkeeper/internal/utils"
+	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
 func TestApplication_HandlerGetSecret(t *testing.T) {
@@ -80,11 +81,12 @@ func TestApplication_HandlerGetSecret(t *testing.T) {
 					s := mockStorage.NewMockStorage(t)
 
 					secret := &storage.Secret{
-						ID:     secretID,
-						UserID: userID,
-						Name:   "my secret card",
-						Tags:   storage.Tags{"MIR"},
-						Kind:   storage.KindBankCard,
+						ID:          secretID,
+						UserID:      userID,
+						Name:        "my secret card",
+						Tags:        storage.Tags{"MIR"},
+						Kind:        api.KindBankCard,
+						IsEncrypted: true,
 						Value: &storage.SecretBankCard{
 							ID:     secretID,
 							Name:   "KIRILL TITOV",
@@ -112,6 +114,7 @@ func TestApplication_HandlerGetSecret(t *testing.T) {
 							"name": "my secret card",
 							"tags": ["MIR"],
 							"kind": "bank_card",
+							"is_encrypted": true,
 							"value": {
 								"id": "` + secretID.String() + `",
 								"name": "KIRILL TITOV",

@@ -6,8 +6,28 @@ import (
 
 	"github.com/kirilltitov/gophkeeper/internal/gophkeeper"
 	"github.com/kirilltitov/gophkeeper/internal/utils"
+	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
+// HandlerAddTag adds a tag to a given secret.
+//
+// Example request:
+//
+// POST /api/secret/tag/{ID}
+//
+//	{
+//		"tag": "some tag"
+//	}
+//
+// Example response:
+//
+//	{
+//		"success": true,
+//		"result":  null,
+//		"error":   null
+//	}
+//
+// May response with codes 200, 401, 500.
 func (a *Application) HandlerAddTag(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -25,7 +45,7 @@ func (a *Application) HandlerAddTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var req requestTag
+	var req api.TagRequest
 
 	defer r.Body.Close()
 	err = parseRequest(w, r.Body, &req)
@@ -47,5 +67,5 @@ func (a *Application) HandlerAddTag(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	returnSuccessWithCode(w, http.StatusOK, nil)
+	returnEmptySuccessWithCode(w, http.StatusOK)
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/kirilltitov/gophkeeper/internal/storage"
 	mockStorage "github.com/kirilltitov/gophkeeper/internal/storage/mocks"
 	"github.com/kirilltitov/gophkeeper/internal/utils"
+	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
 func TestGophkeeper_GetSecretWithValueByID(t *testing.T) {
@@ -27,7 +28,7 @@ func TestGophkeeper_GetSecretWithValueByID(t *testing.T) {
 	secret := storage.Secret{
 		ID:     utils.NewUUID6(),
 		UserID: user.ID,
-		Kind:   storage.KindNote,
+		Kind:   api.KindNote,
 	}
 
 	tests := []struct {
@@ -106,7 +107,7 @@ func TestGophkeeper_GetSecretWithValueByName(t *testing.T) {
 	secret := storage.Secret{
 		ID:     utils.NewUUID6(),
 		UserID: user.ID,
-		Kind:   storage.KindNote,
+		Kind:   api.KindNote,
 	}
 
 	tests := []struct {

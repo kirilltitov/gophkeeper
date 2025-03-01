@@ -4,8 +4,29 @@ import (
 	"net/http"
 
 	"github.com/kirilltitov/gophkeeper/internal/utils"
+	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
+// HandlerEditSecretCredentials edits a secret credentials.
+//
+// Example request:
+//
+// POST /api/secret/edit/credentials/{ID}
+//
+//	{
+//		"login":    "john.appleseed",
+//		"password": "MoolyFTW"
+//	}
+//
+// Example response:
+//
+//	{
+//		"success": true,
+//		"result":  null,
+//		"error":   null
+//	}
+//
+// May response with codes 200, 401, 500.
 func (a *Application) HandlerEditSecretCredentials(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -23,7 +44,7 @@ func (a *Application) HandlerEditSecretCredentials(w http.ResponseWriter, r *htt
 		return
 	}
 
-	var req requestCredentials
+	var req api.SecretCredentials
 
 	defer r.Body.Close()
 	err = parseRequest(w, r.Body, &req)
@@ -43,5 +64,5 @@ func (a *Application) HandlerEditSecretCredentials(w http.ResponseWriter, r *htt
 		return
 	}
 
-	returnSuccessWithCode(w, http.StatusOK, nil)
+	returnEmptySuccessWithCode(w, http.StatusOK)
 }

@@ -10,10 +10,11 @@ create type public.secret_kind as enum('credentials', 'note', 'blob', 'bank_card
 
 create table public.secret
 (
-    id      uuid         not null primary key,
-    user_id uuid         not null references public.user (id) on delete cascade,
-    name    varchar      not null,
-    kind    secret_kind  not null,
+    id           uuid         not null primary key,
+    user_id      uuid         not null references public.user (id) on delete cascade,
+    name         varchar      not null,
+    kind         secret_kind  not null,
+    is_encrypted bool         not null,
     unique (user_id, name)
 );
 
