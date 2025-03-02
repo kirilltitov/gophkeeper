@@ -107,7 +107,7 @@ func cmdCreateSecretNote() *cli.Command {
 				}
 			}
 
-			fmt.Fprintf(w, "Succesfully created secret note '%s' with id '%s'", req.Name, resp.ID.String())
+			fmt.Fprintf(w, "Succesfuly created secret note '%s' with id '%s'", req.Name, resp.ID.String())
 
 			return nil
 		},

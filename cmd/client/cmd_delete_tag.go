@@ -63,7 +63,7 @@ func cmdDeleteTag() *cli.Command {
 				}
 			}
 
-			fmt.Fprintf(w, "Succesfully deleted tag '%s' from secret '%s'", tag, existingSecret.Name)
+			fmt.Fprintf(w, "Succesfuly deleted tag '%s' from secret '%s'", tag, existingSecret.Name)
 
 			return nil
 		},

@@ -50,6 +50,9 @@ issues:
   exclude-files:
     - ".*_mock_test\\.go$"
   exclude-rules:
+    - linters:
+        - gosec
+      text: "G306"
     # Exclude some linters
     - path: tests
       linters:

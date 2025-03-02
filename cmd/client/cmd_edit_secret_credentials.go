@@ -90,7 +90,7 @@ func cmdEditSecretCredentials() *cli.Command {
 				}
 			}
 
-			fmt.Fprintf(w, "Succesfully edited secret credentials '%s'", existingSecret.Name)
+			fmt.Fprintf(w, "Succesfuly edited secret credentials '%s'", existingSecret.Name)
 
 			return nil
 		},

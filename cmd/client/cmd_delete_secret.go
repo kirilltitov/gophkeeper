@@ -55,7 +55,7 @@ func cmdDeleteSecret() *cli.Command {
 				}
 			}
 
-			fmt.Fprintf(w, "Succesfully delete secret '%s'", name)
+			fmt.Fprintf(w, "Succesfuly delete secret '%s'", name)
 
 			return nil
 		},

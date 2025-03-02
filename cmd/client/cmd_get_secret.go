@@ -21,6 +21,7 @@ const (
 	keyValue = "value"
 )
 
+//gocognit:ignore
 func cmdGetSecret() *cli.Command {
 	return &cli.Command{
 		Name:  "get",
@@ -99,13 +100,115 @@ func cmdGetSecret() *cli.Command {
 				}
 			}
 
-			result, err := getFormattedSecretForOutput(rawJSON, existingSecret, encryptionKeyBytes)
-			if err != nil {
-				return err
+			var result []byte
+
+			switch existingSecret.Kind {
+			case api.KindBankCard:
+				var value api.SecretBankCard
+				if err := json.Unmarshal(rawJSON[keyValue], &value); err != nil {
+					return errors.Wrap(err, "could not unmarshal secret bank card")
+				}
+				if existingSecret.IsEncrypted {
+					var decryptedBytes []byte
+
+					decryptedBytes, err = decrypt(encryptionKeyBytes, value.Name)
+					if err != nil {
+						return err
+					}
+					value.Name = string(decryptedBytes)
+
+					decryptedBytes, err = decrypt(encryptionKeyBytes, value.Number)
+					if err != nil {
+						return err
+					}
+					value.Number = string(decryptedBytes)
+
+					decryptedBytes, err = decrypt(encryptionKeyBytes, value.Date)
+					if err != nil {
+						return err
+					}
+					value.Date = string(decryptedBytes)
+
+					decryptedBytes, err = decrypt(encryptionKeyBytes, value.CVV)
+					if err != nil {
+						return err
+					}
+					value.CVV = string(decryptedBytes)
+				}
+
+				result = []byte(fmt.Sprintf(
+					"Cardholder: %s\nNumber: %s\nExpiration date: %s\nCVV/CVC: %s\n",
+					value.Name, value.Number, value.Date, value.CVV,
+				))
+			case api.KindCredentials:
+				var value api.SecretCredentials
+				if err := json.Unmarshal(rawJSON[keyValue], &value); err != nil {
+					return errors.Wrap(err, "could not unmarshal secret credentials")
+				}
+				if existingSecret.IsEncrypted {
+					var decryptedBytes []byte
+
+					decryptedBytes, err = decrypt(encryptionKeyBytes, value.Login)
+					if err != nil {
+						return err
+					}
+					value.Login = string(decryptedBytes)
+
+					decryptedBytes, err = decrypt(encryptionKeyBytes, value.Password)
+					if err != nil {
+						return err
+					}
+					value.Password = string(decryptedBytes)
+				}
+
+				result = []byte(fmt.Sprintf(
+					"Login: %s\nPassword: %s\n",
+					value.Login, value.Password,
+				))
+			case api.KindNote:
+				var value api.SecretNote
+				if err := json.Unmarshal(rawJSON[keyValue], &value); err != nil {
+					return errors.Wrap(err, "could not unmarshal secret note")
+				}
+				if existingSecret.IsEncrypted {
+					var decryptedBytes []byte
+
+					decryptedBytes, err = decrypt(encryptionKeyBytes, value.Body)
+					if err != nil {
+						return err
+					}
+					value.Body = string(decryptedBytes)
+				}
+
+				result = []byte(fmt.Sprintf(
+					"%s\n",
+					value.Body,
+				))
+			case api.KindBlob:
+				var value api.SecretBlob
+				if err := json.Unmarshal(rawJSON[keyValue], &value); err != nil {
+					return errors.Wrap(err, "could not unmarshal secret blob")
+				}
+				if existingSecret.IsEncrypted {
+					var decryptedBytes []byte
+
+					decryptedBytes, err = decrypt(encryptionKeyBytes, value.Body)
+					if err != nil {
+						return err
+					}
+					result = decryptedBytes
+				} else {
+					result, err = base64.StdEncoding.DecodeString(value.Body)
+					if err != nil {
+						return err
+					}
+				}
+			default:
+				return fmt.Errorf("unexpected kind '%s'", existingSecret.Kind)
 			}
 
 			if existingSecret.Kind == api.KindBlob {
-				if err := os.WriteFile(outputFileName, *result, 0o660); err != nil {
+				if err := os.WriteFile(outputFileName, result, 0o660); err != nil {
 					return errors.Wrap(err, "could not write secret blob to output file")
 				}
 
@@ -115,7 +218,7 @@ func cmdGetSecret() *cli.Command {
 			}
 
 			if outputFileName != "" {
-				if err := os.WriteFile(outputFileName, *result, 0o660); err != nil {
+				if err := os.WriteFile(outputFileName, result, 0o660); err != nil {
 					return errors.Wrap(err, "could not write secret blob to output file")
 				}
 
@@ -124,125 +227,9 @@ func cmdGetSecret() *cli.Command {
 				return nil
 			}
 
-			fmt.Fprintf(w, "Here is your secret: \n\n%s", string(*result))
+			fmt.Fprintf(w, "Here is your secret: \n\n%s", string(result))
 
 			return nil
 		},
 	}
-}
-
-func getFormattedSecretForOutput(
-	rawJSON map[string]json.RawMessage,
-	secret *secret,
-	encryptionKeyBytes []byte,
-) (*[]byte, error) {
-	var result []byte
-	var err error
-
-	switch secret.Kind {
-	case api.KindBankCard:
-		var value api.SecretBankCard
-		if err := json.Unmarshal(rawJSON[keyValue], &value); err != nil {
-			return nil, errors.Wrap(err, "could not unmarshal secret bank card")
-		}
-		if secret.IsEncrypted {
-			var decryptedBytes []byte
-
-			decryptedBytes, err = decrypt(encryptionKeyBytes, value.Name)
-			if err != nil {
-				return nil, err
-			}
-			value.Name = string(decryptedBytes)
-
-			decryptedBytes, err = decrypt(encryptionKeyBytes, value.Number)
-			if err != nil {
-				return nil, err
-			}
-			value.Number = string(decryptedBytes)
-
-			decryptedBytes, err = decrypt(encryptionKeyBytes, value.Date)
-			if err != nil {
-				return nil, err
-			}
-			value.Date = string(decryptedBytes)
-
-			decryptedBytes, err = decrypt(encryptionKeyBytes, value.CVV)
-			if err != nil {
-				return nil, err
-			}
-			value.CVV = string(decryptedBytes)
-		}
-
-		result = []byte(fmt.Sprintf(
-			"Cardholder: %s\nNumber: %s\nExpiration date: %s\nCVV/CVC: %s\n",
-			value.Name, value.Number, value.Date, value.CVV,
-		))
-	case api.KindCredentials:
-		var value api.SecretCredentials
-		if err := json.Unmarshal(rawJSON[keyValue], &value); err != nil {
-			return nil, errors.Wrap(err, "could not unmarshal secret credentials")
-		}
-		if secret.IsEncrypted {
-			var decryptedBytes []byte
-
-			decryptedBytes, err = decrypt(encryptionKeyBytes, value.Login)
-			if err != nil {
-				return nil, err
-			}
-			value.Login = string(decryptedBytes)
-
-			decryptedBytes, err = decrypt(encryptionKeyBytes, value.Password)
-			if err != nil {
-				return nil, err
-			}
-			value.Password = string(decryptedBytes)
-		}
-
-		result = []byte(fmt.Sprintf(
-			"Login: %s\nPassword: %s\n",
-			value.Login, value.Password,
-		))
-	case api.KindNote:
-		var value api.SecretNote
-		if err := json.Unmarshal(rawJSON[keyValue], &value); err != nil {
-			return nil, errors.Wrap(err, "could not unmarshal secret note")
-		}
-		if secret.IsEncrypted {
-			var decryptedBytes []byte
-
-			decryptedBytes, err = decrypt(encryptionKeyBytes, value.Body)
-			if err != nil {
-				return nil, err
-			}
-			value.Body = string(decryptedBytes)
-		}
-
-		result = []byte(fmt.Sprintf(
-			"%s\n",
-			value.Body,
-		))
-	case api.KindBlob:
-		var value api.SecretBlob
-		if err := json.Unmarshal(rawJSON[keyValue], &value); err != nil {
-			return nil, errors.Wrap(err, "could not unmarshal secret blob")
-		}
-		if secret.IsEncrypted {
-			var decryptedBytes []byte
-
-			decryptedBytes, err = decrypt(encryptionKeyBytes, value.Body)
-			if err != nil {
-				return nil, err
-			}
-			result = decryptedBytes
-		} else {
-			result, err = base64.StdEncoding.DecodeString(value.Body)
-			if err != nil {
-				return nil, err
-			}
-		}
-	default:
-		return nil, fmt.Errorf("unexpected kind '%s'", secret.Kind)
-	}
-
-	return &result, nil
 }

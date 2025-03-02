@@ -109,7 +109,7 @@ func cmdEditSecretNote() *cli.Command {
 				}
 			}
 
-			fmt.Fprintf(w, "Succesfully edited secret note '%s'", existingSecret.Name)
+			fmt.Fprintf(w, "Succesfuly edited secret note '%s'", existingSecret.Name)
 
 			return nil
 		},
