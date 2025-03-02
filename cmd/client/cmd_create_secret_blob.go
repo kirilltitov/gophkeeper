@@ -85,7 +85,7 @@ func cmdCreateSecretBlob() *cli.Command {
 				}
 			}
 
-			fmt.Fprintf(w, "Succesfuly created secret blob '%s' with id '%s'", req.Name, resp.ID.String())
+			fmt.Fprintf(w, "Successfully created secret blob '%s' with id '%s'", req.Name, resp.ID.String())
 
 			return nil
 		},

@@ -115,7 +115,7 @@ func cmdEditSecretBankCard() *cli.Command {
 				}
 			}
 
-			fmt.Fprintf(w, "Succesfuly edited secret bank card '%s'", existingSecret.Name)
+			fmt.Fprintf(w, "Successfully edited secret bank card '%s'", existingSecret.Name)
 
 			return nil
 		},

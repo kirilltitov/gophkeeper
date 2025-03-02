@@ -62,7 +62,7 @@ func cmdAddTag() *cli.Command {
 				}
 			}
 
-			fmt.Fprintf(w, "Succesfuly added tag '%s' to secret '%s'", tag, existingSecret.Name)
+			fmt.Fprintf(w, "Successfully added tag '%s' to secret '%s'", tag, existingSecret.Name)
 
 			return nil
 		},

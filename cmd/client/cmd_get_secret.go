@@ -22,6 +22,7 @@ const (
 )
 
 //gocognit:ignore
+//maintidx:ignore
 func cmdGetSecret() *cli.Command {
 	return &cli.Command{
 		Name:  "get",

@@ -67,7 +67,7 @@ func cmdRenameSecret() *cli.Command {
 				}
 			}
 
-			fmt.Fprintf(w, "Succesfuly renamed secret from '%s' to '%s'", oldName, newName)
+			fmt.Fprintf(w, "Successfully renamed secret from '%s' to '%s'", oldName, newName)
 
 			return nil
 		},

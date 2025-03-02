@@ -87,7 +87,7 @@ func cmdEditSecretBlob() *cli.Command {
 				}
 			}
 
-			fmt.Fprintf(w, "Succesfuly edited secret blob '%s'", existingSecret.Name)
+			fmt.Fprintf(w, "Successfully edited secret blob '%s'", existingSecret.Name)
 
 			return nil
 		},
