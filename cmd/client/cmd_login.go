@@ -89,7 +89,7 @@ func cmdLogin() *cli.Command {
 				return errors.Wrap(err, "could not save JWT locally")
 			}
 
-			fmt.Fprintf(cmd.Root().Writer, "Successfuly logged in\n")
+			fmt.Fprintf(cmd.Root().Writer, "Successfully logged in\n")
 
 			return nil
 		},

@@ -21,8 +21,7 @@ const (
 	keyValue = "value"
 )
 
-//gocognit:ignore
-//maintidx:ignore
+//nolint:gocognit,maintidx
 func cmdGetSecret() *cli.Command {
 	return &cli.Command{
 		Name:  "get",
@@ -213,7 +212,7 @@ func cmdGetSecret() *cli.Command {
 					return errors.Wrap(err, "could not write secret blob to output file")
 				}
 
-				fmt.Fprintf(w, "Successfuly written your secret to file %s\n", outputFileName)
+				fmt.Fprintf(w, "Successfully written your secret to file %s\n", outputFileName)
 
 				return nil
 			}
@@ -223,7 +222,7 @@ func cmdGetSecret() *cli.Command {
 					return errors.Wrap(err, "could not write secret blob to output file")
 				}
 
-				fmt.Fprintf(w, "Successfuly written your secret to file %s\n", outputFileName)
+				fmt.Fprintf(w, "Successfully written your secret to file %s\n", outputFileName)
 
 				return nil
 			}

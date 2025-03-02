@@ -77,7 +77,7 @@ func cmdRegister() *cli.Command {
 				return fmt.Errorf("could not save JWT locally: %s", err.Error())
 			}
 
-			fmt.Fprintf(cmd.Root().Writer, "Successfuly registered\n")
+			fmt.Fprintf(cmd.Root().Writer, "Successfully registered\n")
 
 			return nil
 		},
