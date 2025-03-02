@@ -43,7 +43,7 @@ func cmdEditSecretBankCard() *cli.Command {
 				Required: true,
 			},
 		},
-		Before: checkAuth,
+		Before: setupAndAuthorize,
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			w := cmd.Root().Writer
 
@@ -61,7 +61,7 @@ func cmdEditSecretBankCard() *cli.Command {
 			var cardCVV = cmd.String(flagCardCVV)
 
 			if existingSecret.IsEncrypted {
-				fmt.Fprintf(w, "This secret is encrypted, so you'll have to enter encryption key\n")
+				fmt.Fprint(w, noticeSecretIsEncrypted)
 				encryptionKeyBytes, err := getEncryptionKeyBytes(cmd, true)
 				if err != nil {
 					return err

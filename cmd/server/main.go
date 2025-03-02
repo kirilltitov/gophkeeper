@@ -13,6 +13,7 @@ import (
 	"github.com/kirilltitov/gophkeeper/internal/container"
 	"github.com/kirilltitov/gophkeeper/internal/gophkeeper"
 	"github.com/kirilltitov/gophkeeper/internal/utils"
+	"github.com/kirilltitov/gophkeeper/pkg/version"
 )
 
 var (
@@ -22,7 +23,7 @@ var (
 )
 
 func main() {
-	v := utils.Version{
+	v := version.Version{
 		BuildVersion: buildVersion,
 		BuildDate:    buildDate,
 		BuildCommit:  buildCommit,

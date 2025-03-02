@@ -13,11 +13,10 @@ func cmdGetSecrets() *cli.Command {
 		Name:    "list",
 		Usage:   "Secrets list",
 		Aliases: []string{"secrets"},
-		Before:  checkAuth,
+		Before:  setupAndAuthorize,
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			w := cmd.Root().Writer
 
-			fmt.Fprintf(w, "You have %d secrets: \n\n", len(secretsByName))
 			fmt.Fprintf(w, "[ID] [Kind] Name Details\n\n")
 
 			for _, item := range secretsByName {

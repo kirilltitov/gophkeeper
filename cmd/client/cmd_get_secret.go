@@ -37,7 +37,7 @@ func cmdGetSecret() *cli.Command {
 				Usage:   "Outputs secret into provided file name (will create if not exists)",
 			},
 		},
-		Before: checkAuth,
+		Before: setupAndAuthorize,
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			w := cmd.Root().Writer
 
@@ -93,7 +93,7 @@ func cmdGetSecret() *cli.Command {
 
 			var encryptionKeyBytes []byte
 			if existingSecret.IsEncrypted {
-				fmt.Fprintf(w, "This secret is encrypted, so you'll have to enter encryption key\n")
+				fmt.Fprint(w, noticeSecretIsEncrypted)
 				encryptionKeyBytes, err = getEncryptionKeyBytes(cmd, true)
 				if err != nil {
 					return err

@@ -1,15 +1,12 @@
 package main
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"net/http"
 	"os"
 
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/urfave/cli/v3"
-
 	"github.com/kirilltitov/gophkeeper/pkg/auth"
 )
 
@@ -107,12 +104,4 @@ func findAuthCookie(cookies []*http.Cookie, name string) *http.Cookie {
 	}
 
 	return nil
-}
-
-func checkAuth(ctx context.Context, command *cli.Command) (context.Context, error) {
-	if !isLoggedIn {
-		return ctx, errors.New("you are not authenticated")
-	}
-
-	return ctx, nil
 }

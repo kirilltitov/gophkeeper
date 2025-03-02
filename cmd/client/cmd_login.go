@@ -22,6 +22,7 @@ func cmdLogin() *cli.Command {
 				Name: flagLogin,
 			},
 		},
+		Before: setup,
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			var login string
 

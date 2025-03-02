@@ -32,7 +32,7 @@ func cmdCreateSecretCredentials() *cli.Command {
 				Required: true,
 			},
 		},
-		Before: checkAuth,
+		Before: setupAndAuthorize,
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			w := cmd.Root().Writer
 

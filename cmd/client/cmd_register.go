@@ -21,6 +21,7 @@ func cmdRegister() *cli.Command {
 				Required: true,
 			},
 		},
+		Before: setup,
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			fmt.Fprintf(cmd.Root().Writer, "About to register user with login '%s'\n", cmd.String(flagLogin))
 

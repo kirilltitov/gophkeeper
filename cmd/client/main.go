@@ -30,10 +30,19 @@ const (
 	flagVeryVerbose    = "very-verbose"
 )
 
+const noticeSecretIsEncrypted = "This secret is encrypted, so you'll have to enter encryption key\n\n"
+
 var logger = logrus.New()
 
+var isLoggedIn bool
+
+var (
+	buildVersion string
+	buildDate    string
+	buildCommit  string
+)
+
 var c *client
-var isLoggedIn = false
 var secretsByName = make(map[string]*secret)
 var secretsByID = make(map[uuid.UUID]*secret)
 
@@ -54,10 +63,9 @@ func main() {
 		Description: "",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:     flagAddress,
-				Usage:    "Address (including protocol and port) of the service",
-				Aliases:  []string{"a"},
-				Required: true,
+				Name:    flagAddress,
+				Usage:   "Address (including protocol and port) of the service",
+				Aliases: []string{"a"},
 			},
 			&cli.StringFlag{
 				Name:  flagAuthCookieName,
@@ -96,63 +104,77 @@ func main() {
 			cmdEditSecretBlob(),
 			cmdGetSecrets(),
 			cmdGetSecret(),
-		},
-		Before: func(ctx context.Context, cmd *cli.Command) (context.Context, error) {
-			w := cmd.Root().Writer
-
-			logger.SetOutput(w)
-
-			if cmd.Bool(flagVerbose) {
-				logger.SetLevel(logrus.DebugLevel)
-			}
-			if cmd.Bool(flagVeryVerbose) {
-				logger.SetLevel(logrus.TraceLevel)
-			}
-
-			jwtString, err := authenticate()
-			if err != nil && !errors.Is(err, errAuthExpired) {
-				return ctx, errors.Wrap(err, "could not authenticate user from local JWT file")
-			}
-
-			if jwtString != "" {
-				isLoggedIn = true
-			}
-
-			if !isLoggedIn {
-				return ctx, nil
-			}
-
-			c = newClient(cmd.String(flagAddress), jwtString)
-
-			if jwtString == "" {
-				return ctx, nil
-			}
-
-			var secretsList []secret
-
-			code, err := SendRequest[[]secret](c, ctx, "/api/secret/list", http.MethodGet, nil, &secretsList)
-			if err != nil {
-				return ctx, errors.Wrap(err, "could not retrieve secrets list")
-			}
-			if code != http.StatusOK {
-				return ctx, fmt.Errorf("unexpected status code during secrets list retrieval: %d", code)
-			}
-
-			for _, item := range secretsList {
-				item := item
-				secretsByName[item.Name] = &item
-				secretsByID[item.ID] = &item
-			}
-
-			fmt.Fprintf(w, "Synchronized %d secrets from the server\n", len(secretsList))
-
-			return ctx, nil
+			cmdVersion(),
 		},
 	}
 
 	if err := cmd.Run(context.Background(), os.Args); err != nil {
 		fmt.Printf("Error: %s\n", err.Error())
 	}
+}
+
+func setup(ctx context.Context, cmd *cli.Command) (context.Context, error) {
+	w := cmd.Root().Writer
+
+	logger.SetOutput(w)
+
+	if cmd.Bool(flagVerbose) {
+		logger.SetLevel(logrus.DebugLevel)
+	}
+	if cmd.Bool(flagVeryVerbose) {
+		logger.SetLevel(logrus.TraceLevel)
+	}
+
+	jwtString, err := authenticate()
+	if err != nil && !errors.Is(err, errAuthExpired) {
+		return ctx, errors.Wrap(err, "could not authenticate user from local JWT file")
+	}
+
+	if jwtString != "" {
+		isLoggedIn = true
+	}
+
+	address := cmd.String(flagAddress)
+	if address == "" {
+		return ctx, fmt.Errorf("you haven't provided --%s", flagAddress)
+	}
+
+	c = newClient(address, jwtString)
+
+	return ctx, nil
+}
+
+func setupAndAuthorize(ctx context.Context, cmd *cli.Command) (context.Context, error) {
+	w := cmd.Root().Writer
+
+	ctx, err := setup(ctx, cmd)
+	if err != nil {
+		return ctx, err
+	}
+
+	if !isLoggedIn {
+		return ctx, errors.New("you are not authenticated")
+	}
+
+	var secretsList []secret
+
+	code, err := SendRequest[[]secret](c, ctx, "/api/secret/list", http.MethodGet, nil, &secretsList)
+	if err != nil {
+		return ctx, errors.Wrap(err, "could not retrieve secrets list")
+	}
+	if code != http.StatusOK {
+		return ctx, fmt.Errorf("unexpected status code during secrets list retrieval: %d", code)
+	}
+
+	for _, item := range secretsList {
+		item := item
+		secretsByName[item.Name] = &item
+		secretsByID[item.ID] = &item
+	}
+
+	fmt.Fprintf(w, "Synchronized %d secrets from the server\n\n", len(secretsList))
+
+	return ctx, nil
 }
 
 func readPassword(w io.Writer, prompt string) (string, error) {
