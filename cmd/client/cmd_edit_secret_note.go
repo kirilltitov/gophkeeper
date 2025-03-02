@@ -32,6 +32,7 @@ func cmdEditSecretNote() *cli.Command {
 				Usage: "Secret note text",
 			},
 		},
+		Before: checkAuth,
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			w := cmd.Root().Writer
 
@@ -40,7 +41,7 @@ func cmdEditSecretNote() *cli.Command {
 			name := cmd.String(flagSecretName)
 			existingSecret, found := secretsByName[name]
 			if !found {
-				return errors.New(fmt.Sprintf("secret '%s' not found", name))
+				return fmt.Errorf("secret '%s' not found", name)
 			}
 
 			fileName := cmd.String(flagSecretNoteFile)
@@ -50,11 +51,11 @@ func cmdEditSecretNote() *cli.Command {
 				return errors.New("both filename and text provided, choose one")
 			}
 			if fileName == "" && text == "" {
-				return errors.New(fmt.Sprintf(
+				return fmt.Errorf(
 					"you haven't provided secret note (--%s) or the filename (--%s)",
 					flagSecretNoteText,
 					flagSecretNoteFile,
-				))
+				)
 			}
 
 			var note string
@@ -104,7 +105,7 @@ func cmdEditSecretNote() *cli.Command {
 				case http.StatusUnauthorized:
 					return errors.New("unauthorized")
 				default:
-					return errors.New(fmt.Sprintf("unexpected status code %d", code))
+					return fmt.Errorf("unexpected status code %d", code)
 				}
 			}
 

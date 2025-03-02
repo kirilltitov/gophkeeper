@@ -37,6 +37,7 @@ func cmdCreateSecretNote() *cli.Command {
 				Usage: "Secret note text",
 			},
 		},
+		Before: checkAuth,
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			w := cmd.Root().Writer
 
@@ -47,11 +48,11 @@ func cmdCreateSecretNote() *cli.Command {
 				return errors.New("both filename and text provided, choose one")
 			}
 			if fileName == "" && text == "" {
-				return errors.New(fmt.Sprintf(
+				return fmt.Errorf(
 					"you haven't provided secret note (--%s) or the filename (--%s)",
 					flagSecretNoteText,
 					flagSecretNoteFile,
-				))
+				)
 			}
 
 			var note string
@@ -69,6 +70,9 @@ func cmdCreateSecretNote() *cli.Command {
 			}
 
 			encryptionKeyBytes, err := getEncryptionKeyBytes(cmd, false)
+			if err != nil {
+				return nil
+			}
 			isEncryptionEnabled := !cmd.Bool(flagNoEncrypt)
 
 			if encryptionKeyBytes != nil {
@@ -99,7 +103,7 @@ func cmdCreateSecretNote() *cli.Command {
 				case http.StatusConflict:
 					return errors.New("secret with this name already exists")
 				default:
-					return errors.New(fmt.Sprintf("unexpected status code %d", code))
+					return fmt.Errorf("unexpected status code %d", code)
 				}
 			}
 

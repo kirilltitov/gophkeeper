@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v3"
@@ -18,12 +19,21 @@ func cmdLogin() *cli.Command {
 		Usage:       "Performs login into the service",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:     flagLogin,
-				Required: true,
+				Name: flagLogin,
 			},
 		},
 		Action: func(ctx context.Context, cmd *cli.Command) error {
-			login := cmd.String(flagLogin)
+			var login string
+
+			login = cmd.String(flagLogin)
+
+			if login == "" {
+				login = strings.TrimSpace(strings.Join(cmd.Args().Slice(), " "))
+			}
+
+			if login == "" {
+				return fmt.Errorf("you haven't provided login (--%s or argument)", flagLogin)
+			}
 
 			claims, err := getAuthClaims()
 			if err != nil {
@@ -66,7 +76,7 @@ func cmdLogin() *cli.Command {
 				if resp.StatusCode == http.StatusUnauthorized {
 					return errors.New("incorrect login or password")
 				} else {
-					return errors.New(fmt.Sprintf("unexpected status code %d", resp.StatusCode))
+					return fmt.Errorf("unexpected status code %d", resp.StatusCode)
 				}
 			}
 
@@ -79,7 +89,7 @@ func cmdLogin() *cli.Command {
 				return errors.Wrap(err, "could not save JWT locally")
 			}
 
-			fmt.Fprintf(cmd.Root().Writer, "Successfully logged in\n")
+			fmt.Fprintf(cmd.Root().Writer, "Successfuly logged in\n")
 
 			return nil
 		},

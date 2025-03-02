@@ -14,7 +14,7 @@ import (
 )
 
 func getEncryptionKeyBytes(cmd *cli.Command, force bool) ([]byte, error) {
-	if cmd.Bool(flagNoEncrypt) == true && !force {
+	if cmd.Bool(flagNoEncrypt) && !force {
 		fmt.Fprintf(cmd.Root().Writer, "WARNING: You have disabled encryption key prompt, this might be unsecure\n")
 		return nil, nil
 	}

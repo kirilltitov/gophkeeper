@@ -29,6 +29,7 @@ func cmdRenameSecret() *cli.Command {
 				Required: true,
 			},
 		},
+		Before: checkAuth,
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			w := cmd.Root().Writer
 
@@ -37,7 +38,7 @@ func cmdRenameSecret() *cli.Command {
 
 			existingSecret, found := secretsByName[oldName]
 			if !found {
-				return errors.New(fmt.Sprintf("secret '%s' not found", oldName))
+				return fmt.Errorf("secret '%s' not found", oldName)
 			}
 
 			type req struct {
@@ -62,7 +63,7 @@ func cmdRenameSecret() *cli.Command {
 				case http.StatusConflict:
 					return errors.New("secret with this name already exists")
 				default:
-					return errors.New(fmt.Sprintf("unexpected status code %d", code))
+					return fmt.Errorf("unexpected status code %d", code)
 				}
 			}
 

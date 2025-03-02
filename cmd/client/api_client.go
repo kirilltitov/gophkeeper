@@ -35,8 +35,8 @@ func (c *client) SendRawRequest(
 	method string,
 	request any,
 ) (*http.Response, error) {
-	fullUrl := c.baseURL + url
-	logger.Debugf("About to send API request to %s '%s'", method, fullUrl)
+	fullURL := c.baseURL + url
+	logger.Debugf("About to send API request to %s '%s'", method, fullURL)
 	if request != nil {
 		logger.Tracef("API request body: %+v", request)
 	}
@@ -49,7 +49,7 @@ func (c *client) SendRawRequest(
 	rawRequest, err := http.NewRequestWithContext(
 		ctx,
 		method,
-		fullUrl,
+		fullURL,
 		bytes.NewReader(requestBody),
 	)
 
@@ -90,14 +90,14 @@ func SendRequest[R any](
 		return 0, err
 	}
 	if rawResponse.StatusCode == http.StatusNotFound {
-		return http.StatusNotFound, errApiEndpointNotFound
+		return http.StatusNotFound, errAPIEndpointNotFound
 	}
 
 	defer rawResponse.Body.Close()
 	responseBytes, err := io.ReadAll(rawResponse.Body)
 	if len(responseBytes) == 0 {
 		if response != nil {
-			return 0, errNoApiResponse
+			return 0, errNoAPIResponse
 		}
 		return 0, nil
 	}

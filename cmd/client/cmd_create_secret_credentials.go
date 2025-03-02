@@ -32,10 +32,14 @@ func cmdCreateSecretCredentials() *cli.Command {
 				Required: true,
 			},
 		},
+		Before: checkAuth,
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			w := cmd.Root().Writer
 
 			encryptionKeyBytes, err := getEncryptionKeyBytes(cmd, false)
+			if err != nil {
+				return nil
+			}
 			isEncryptionEnabled := !cmd.Bool(flagNoEncrypt)
 
 			password, err := readPassword(w, "Enter secret credentials password: ")
@@ -79,7 +83,7 @@ func cmdCreateSecretCredentials() *cli.Command {
 				case http.StatusConflict:
 					return errors.New("secret with this name already exists")
 				default:
-					return errors.New(fmt.Sprintf("unexpected status code %d", code))
+					return fmt.Errorf("unexpected status code %d", code)
 				}
 			}
 

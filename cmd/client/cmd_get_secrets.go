@@ -10,8 +10,10 @@ import (
 
 func cmdGetSecrets() *cli.Command {
 	return &cli.Command{
-		Name:  "list",
-		Usage: "Secrets list",
+		Name:    "list",
+		Usage:   "Secrets list",
+		Aliases: []string{"secrets"},
+		Before:  checkAuth,
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			w := cmd.Root().Writer
 

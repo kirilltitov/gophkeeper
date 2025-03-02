@@ -34,6 +34,7 @@ func cmdCreateSecretBlob() *cli.Command {
 				Required: true,
 			},
 		},
+		Before: checkAuth,
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			w := cmd.Root().Writer
 
@@ -44,6 +45,9 @@ func cmdCreateSecretBlob() *cli.Command {
 			}
 
 			encryptionKeyBytes, err := getEncryptionKeyBytes(cmd, false)
+			if err != nil {
+				return nil
+			}
 			isEncryptionEnabled := !cmd.Bool(flagNoEncrypt)
 
 			var blob string
@@ -77,7 +81,7 @@ func cmdCreateSecretBlob() *cli.Command {
 				case http.StatusConflict:
 					return errors.New("secret with this name already exists")
 				default:
-					return errors.New(fmt.Sprintf("unexpected status code %d", code))
+					return fmt.Errorf("unexpected status code %d", code)
 				}
 			}
 

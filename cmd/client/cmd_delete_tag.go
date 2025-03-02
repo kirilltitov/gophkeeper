@@ -24,6 +24,7 @@ func cmdDeleteTag() *cli.Command {
 				Required: true,
 			},
 		},
+		Before: checkAuth,
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			w := cmd.Root().Writer
 
@@ -35,7 +36,7 @@ func cmdDeleteTag() *cli.Command {
 			name := cmd.String(flagSecretName)
 			existingSecret, found := secretsByName[name]
 			if !found {
-				return errors.New(fmt.Sprintf("secret '%s' not found", name))
+				return fmt.Errorf("secret '%s' not found", name)
 			}
 
 			req := api.TagRequest{
@@ -58,7 +59,7 @@ func cmdDeleteTag() *cli.Command {
 				case http.StatusUnauthorized:
 					return errors.New("unauthorized")
 				default:
-					return errors.New(fmt.Sprintf("unexpected status code %d", code))
+					return fmt.Errorf("unexpected status code %d", code)
 				}
 			}
 

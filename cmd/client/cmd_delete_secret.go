@@ -20,6 +20,7 @@ func cmdDeleteSecret() *cli.Command {
 				Required: true,
 			},
 		},
+		Before: checkAuth,
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			w := cmd.Root().Writer
 
@@ -27,7 +28,7 @@ func cmdDeleteSecret() *cli.Command {
 
 			existingSecret, found := secretsByName[name]
 			if !found {
-				return errors.New(fmt.Sprintf("secret '%s' not found", name))
+				return fmt.Errorf("secret '%s' not found", name)
 			}
 
 			type req struct {
@@ -50,7 +51,7 @@ func cmdDeleteSecret() *cli.Command {
 				case http.StatusUnauthorized:
 					return errors.New("unauthorized")
 				default:
-					return errors.New(fmt.Sprintf("unexpected status code %d", code))
+					return fmt.Errorf("unexpected status code %d", code)
 				}
 			}
 

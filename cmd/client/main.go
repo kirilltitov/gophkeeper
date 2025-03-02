@@ -11,7 +11,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v3"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 
 	"github.com/kirilltitov/gophkeeper/pkg/auth"
 )
@@ -33,6 +33,9 @@ const (
 var logger = logrus.New()
 
 var c *client
+var isLoggedIn = false
+var secretsByName = make(map[string]*secret)
+var secretsByID = make(map[uuid.UUID]*secret)
 
 type secret struct {
 	ID          uuid.UUID `json:"id"`
@@ -41,9 +44,6 @@ type secret struct {
 	IsEncrypted bool      `json:"is_encrypted"`
 	Tags        []string  `json:"tags"`
 }
-
-var secretsByName = make(map[string]*secret)
-var secretsByID = make(map[uuid.UUID]*secret)
 
 func main() {
 	cmd := cli.Command{
@@ -114,6 +114,14 @@ func main() {
 				return ctx, errors.Wrap(err, "could not authenticate user from local JWT file")
 			}
 
+			if jwtString != "" {
+				isLoggedIn = true
+			}
+
+			if !isLoggedIn {
+				return ctx, nil
+			}
+
 			c = newClient(cmd.String(flagAddress), jwtString)
 
 			if jwtString == "" {
@@ -127,10 +135,11 @@ func main() {
 				return ctx, errors.Wrap(err, "could not retrieve secrets list")
 			}
 			if code != http.StatusOK {
-				return ctx, errors.New(fmt.Sprintf("unexpected status code during secrets list retrieval: %d", code))
+				return ctx, fmt.Errorf("unexpected status code during secrets list retrieval: %d", code)
 			}
 
 			for _, item := range secretsList {
+				item := item
 				secretsByName[item.Name] = &item
 				secretsByID[item.ID] = &item
 			}
@@ -149,7 +158,7 @@ func main() {
 func readPassword(w io.Writer, prompt string) (string, error) {
 	fmt.Fprint(w, prompt)
 
-	password, err := terminal.ReadPassword(int(os.Stdin.Fd()))
+	password, err := term.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
 		fmt.Fprintf(w, "Could not read from terminal\n")
 		return "", nil

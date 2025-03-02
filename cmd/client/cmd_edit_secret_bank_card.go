@@ -43,6 +43,7 @@ func cmdEditSecretBankCard() *cli.Command {
 				Required: true,
 			},
 		},
+		Before: checkAuth,
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			w := cmd.Root().Writer
 
@@ -51,7 +52,7 @@ func cmdEditSecretBankCard() *cli.Command {
 			name := cmd.String(flagSecretName)
 			existingSecret, found := secretsByName[name]
 			if !found {
-				return errors.New(fmt.Sprintf("secret '%s' not found", name))
+				return fmt.Errorf("secret '%s' not found", name)
 			}
 
 			var cardHolder = cmd.String(flagCardHolder)
@@ -110,7 +111,7 @@ func cmdEditSecretBankCard() *cli.Command {
 				case http.StatusUnauthorized:
 					return errors.New("unauthorized")
 				default:
-					return errors.New(fmt.Sprintf("unexpected status code %d", code))
+					return fmt.Errorf("unexpected status code %d", code)
 				}
 			}
 

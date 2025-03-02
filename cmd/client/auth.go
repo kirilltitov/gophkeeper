@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
 	"os"
 
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/urfave/cli/v3"
 
 	"github.com/kirilltitov/gophkeeper/pkg/auth"
 )
@@ -19,7 +21,7 @@ func getConfigDir() string {
 
 	result := fmt.Sprintf("%s/%s", configDir, appDir)
 
-	if err := os.Mkdir(result, 0770); err != nil && !os.IsExist(err) {
+	if err := os.Mkdir(result, 0o770); err != nil && !os.IsExist(err) {
 		panic(fmt.Sprintf("Could not create directory '%s' for client: %s", result, err.Error()))
 	}
 
@@ -31,7 +33,7 @@ func getJWTFileName() string {
 }
 
 func storeJWT(jwt string) error {
-	if err := os.WriteFile(getJWTFileName(), []byte(jwt), 0660); err != nil {
+	if err := os.WriteFile(getJWTFileName(), []byte(jwt), 0o660); err != nil {
 		return err
 	}
 
@@ -105,4 +107,12 @@ func findAuthCookie(cookies []*http.Cookie, name string) *http.Cookie {
 	}
 
 	return nil
+}
+
+func checkAuth(ctx context.Context, command *cli.Command) (context.Context, error) {
+	if !isLoggedIn {
+		return ctx, errors.New("you are not authenticated")
+	}
+
+	return ctx, nil
 }

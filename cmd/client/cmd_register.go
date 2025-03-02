@@ -64,7 +64,7 @@ func cmdRegister() *cli.Command {
 				case http.StatusBadRequest:
 					return errors.New("empty login or password")
 				default:
-					return errors.New(fmt.Sprintf("unexpected status code %d", resp.StatusCode))
+					return fmt.Errorf("unexpected status code %d", resp.StatusCode)
 				}
 			}
 
@@ -74,10 +74,10 @@ func cmdRegister() *cli.Command {
 			}
 
 			if err := storeJWT(jwtCookie.Value); err != nil {
-				return errors.New(fmt.Sprintf("could not save JWT locally: %s", err.Error()))
+				return fmt.Errorf("could not save JWT locally: %s", err.Error())
 			}
 
-			fmt.Fprintf(cmd.Root().Writer, "Successfully registered\n")
+			fmt.Fprintf(cmd.Root().Writer, "Successfuly registered\n")
 
 			return nil
 		},
