@@ -21,7 +21,7 @@ const (
 	keyValue = "value"
 )
 
-//nolint:gocognit,maintidx
+//nolint:gocognit,maintidx // разбиение функции только усугубит её читабельность
 func cmdGetSecret() *cli.Command {
 	return &cli.Command{
 		Name:  "get",
