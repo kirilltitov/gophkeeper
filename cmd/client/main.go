@@ -126,7 +126,7 @@ func setup(ctx context.Context, cmd *cli.Command) (context.Context, error) {
 	}
 
 	jwtString, err := authenticate()
-	if err != nil && !errors.Is(err, errAuthExpired) {
+	if err != nil && !errors.Is(err, errAuthExpired) && !errors.Is(err, errNoAuth) {
 		return ctx, errors.Wrap(err, "could not authenticate user from local JWT file")
 	}
 
