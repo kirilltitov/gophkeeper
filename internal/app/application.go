@@ -49,8 +49,8 @@ func (a *Application) Run() {
 		runFunc = func() error {
 			logger.Infof("Starting a HTTPS server at %s", a.Gophkeeper.Config.ServerAddress)
 			return a.Server.ListenAndServeTLS(
-				"localhost.crt",
-				"localhost.key",
+				a.Gophkeeper.Config.TLSCertFile,
+				a.Gophkeeper.Config.TLSKeyFile,
 			)
 		}
 	} else {
