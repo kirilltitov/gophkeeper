@@ -21,4 +21,4 @@ echo "Gzip binaries"
 cd ./build
 tar -czf ./client-linux-amd64.${TAG_NAME}.tar.gz ./client-linux-amd64
 tar -czf ./client-darwin-amd64.${TAG_NAME}.tar.gz ./client-darwin-amd64
-tar -czf ./client-windows-amd64.${TAG_NAME}.tar.gz ./build/client-windows-amd64.exe
+tar -czf ./client-windows-amd64.${TAG_NAME}.tar.gz ./client-windows-amd64.exe
