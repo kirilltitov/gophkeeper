@@ -13,16 +13,16 @@ import (
 )
 
 const (
-	secretsByNameFile = "secrets_by_name.json"
-	secretsByIDFile   = "secrets_by_id.json"
+	secretsByNameFileName = "secrets_by_name"
+	secretsByIDFileName   = "secrets_by_id"
 )
 
 func getSecretsByNameFileName() string {
-	return fmt.Sprintf("%s/%s", getConfigDir(), secretsByNameFile)
+	return fmt.Sprintf("%s/%s.json", getConfigDir(), secretsByNameFileName)
 }
 
 func getSecretsByIDFileName() string {
-	return fmt.Sprintf("%s/%s", getConfigDir(), secretsByIDFile)
+	return fmt.Sprintf("%s/%s.json", getConfigDir(), secretsByIDFileName)
 }
 
 func storeSecrets(file string, secrets []byte) error {

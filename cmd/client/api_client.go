@@ -130,9 +130,5 @@ func SendRequest[R any](
 
 func isOffline(err error) bool {
 	var opError *net.OpError
-	if errors.As(err, &opError) {
-		return true
-	}
-
-	return false
+	return errors.As(err, &opError)
 }

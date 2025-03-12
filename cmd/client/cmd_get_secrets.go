@@ -37,7 +37,7 @@ func cmdGetSecrets() *cli.Command {
 					details = append(details, "🔑")
 				}
 				if item.Description != "" {
-					details = append(details, fmt.Sprintf(`📝: "%s"`, item.Description))
+					details = append(details, fmt.Sprintf(`📝: %q`, item.Description))
 				}
 				if len(item.Tags) > 0 {
 					details = append(details, fmt.Sprintf("🏷: %s", strings.Join(item.Tags, ", ")))

@@ -12,6 +12,7 @@ import (
 	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
+//nolint:gocognit,maintidx // не сложная она
 func cmdEditSecretNote() *cli.Command {
 	return &cli.Command{
 		Name:        "edit-note",
