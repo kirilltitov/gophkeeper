@@ -36,6 +36,10 @@ func cmdRenameSecret() *cli.Command {
 			oldName := cmd.String(flagSecretName)
 			newName := cmd.String(flagSecretNewName)
 
+			if err := syncSecrets(ctx); err != nil {
+				return err
+			}
+
 			existingSecret, found := secretsByName[oldName]
 			if !found {
 				return fmt.Errorf("secret '%s' not found", oldName)
@@ -58,13 +62,15 @@ func cmdRenameSecret() *cli.Command {
 			}
 			if code != http.StatusOK {
 				switch code {
-				case http.StatusUnauthorized:
-					return errors.New("unauthorized")
 				case http.StatusConflict:
 					return errors.New("secret with this name already exists")
 				default:
 					return fmt.Errorf("unexpected status code %d", code)
 				}
+			}
+
+			if err := syncSecrets(ctx); err != nil {
+				return err
 			}
 
 			fmt.Fprintf(w, "Successfully renamed secret from '%s' to '%s'", oldName, newName)

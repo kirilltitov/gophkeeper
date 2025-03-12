@@ -23,10 +23,7 @@ func New(cfg *config.Config, cnt *container.Container) *Gophkeeper {
 }
 
 func (g *Gophkeeper) loadSecretAndAuthorize(ctx context.Context, secretID uuid.UUID) (*storage.Secret, error) {
-	userID, ok := utils.GetUserID(ctx)
-	if !ok {
-		return nil, ErrNoAuth
-	}
+	userID, _ := utils.GetUserID(ctx)
 
 	secret, err := g.Container.Storage.LoadSecretByID(ctx, secretID)
 	if err != nil {

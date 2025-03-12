@@ -12,6 +12,7 @@ import (
 )
 
 const (
+	flagSecretURL   = "url"
 	flagSecretLogin = "login"
 )
 
@@ -24,6 +25,15 @@ func cmdCreateSecretCredentials() *cli.Command {
 			&cli.StringFlag{
 				Name:     flagSecretName,
 				Usage:    "Secret name",
+				Required: true,
+			},
+			&cli.StringFlag{
+				Name:  flagSecretDescription,
+				Usage: "Secret description",
+			},
+			&cli.StringFlag{
+				Name:     flagSecretURL,
+				Usage:    "Credentials URL",
 				Required: true,
 			},
 			&cli.StringFlag{
@@ -48,8 +58,14 @@ func cmdCreateSecretCredentials() *cli.Command {
 			}
 
 			var login = cmd.String(flagSecretLogin)
+			var URL = cmd.String(flagSecretURL)
 
 			if encryptionKeyBytes != nil {
+				URL, err = encrypt(encryptionKeyBytes, []byte(URL))
+				if err != nil {
+					return err
+				}
+
 				login, err = encrypt(encryptionKeyBytes, []byte(login))
 				if err != nil {
 					return err
@@ -63,8 +79,10 @@ func cmdCreateSecretCredentials() *cli.Command {
 
 			req := api.BaseCreateSecretRequest[api.SecretCredentials]{
 				Name:        cmd.String(flagSecretName),
+				Description: cmd.String(flagSecretDescription),
 				IsEncrypted: isEncryptionEnabled,
 				Value: api.SecretCredentials{
+					URL:      URL,
 					Login:    login,
 					Password: password,
 				},
@@ -78,13 +96,15 @@ func cmdCreateSecretCredentials() *cli.Command {
 			}
 			if code != http.StatusCreated {
 				switch code {
-				case http.StatusUnauthorized:
-					return errors.New("unauthorized")
 				case http.StatusConflict:
 					return errors.New("secret with this name already exists")
 				default:
 					return fmt.Errorf("unexpected status code %d", code)
 				}
+			}
+
+			if err := syncSecrets(ctx); err != nil {
+				return err
 			}
 
 			fmt.Fprintf(w, "Successfully created secret credentials '%s' with id '%s'", req.Name, resp.ID.String())

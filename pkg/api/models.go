@@ -5,6 +5,7 @@ import "github.com/google/uuid"
 // BaseCreateSecretRequest is an envelope for detailed secret response containing base fields and secret Value.
 type BaseCreateSecretRequest[V any] struct {
 	Name        string `json:"name" validate:"required"`  // Name is secret name.
+	Description string `json:"description"`               // Description is secret description.
 	IsEncrypted bool   `json:"is_encrypted"`              // IsEncrypted is true if secret value is E2E-encrypted.
 	Value       V      `json:"value" validate:"required"` // Value is actual secret value (see [Kinds]).
 }
@@ -19,6 +20,7 @@ type SecretBankCard struct {
 
 // SecretCredentials is a model representing secret credentials.
 type SecretCredentials struct {
+	URL      string `json:"url" validate:"required"`      // URL is credentials URL.
 	Login    string `json:"login" validate:"required"`    // Login is credentials login.
 	Password string `json:"password" validate:"required"` // Password is credentials password.
 }

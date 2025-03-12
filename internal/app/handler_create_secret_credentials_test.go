@@ -90,7 +90,9 @@ func TestApplication_HandlerCreateSecretCredentials(t *testing.T) {
 				body: `
 					{
 						"name": "secret credentials",
+						"description": "some description",
 						"value": {
+							"url": "url",
 							"login": "foo",
 							"password": "bar"
 						}
@@ -117,7 +119,9 @@ func TestApplication_HandlerCreateSecretCredentials(t *testing.T) {
 				body: `
 					{
 						"name": "duplicate credentials",
+						"description": "some description",
 						"value": {
+							"url": "url",
 							"login": "foo",
 							"password": "bar"
 						}

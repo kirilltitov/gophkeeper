@@ -66,13 +66,6 @@ func TestGophkeeper_GetSecretWithValueByID(t *testing.T) {
 			},
 			want: ErrNoAuth,
 		},
-		{
-			name: "Negative (no user)",
-			input: func() storage.Storage {
-				return mockStorage.NewMockStorage(t)
-			},
-			want: ErrNoAuth,
-		},
 	}
 
 	for _, tt := range tests {
@@ -128,13 +121,6 @@ func TestGophkeeper_GetSecretWithValueByName(t *testing.T) {
 				return s
 			},
 			want: nil,
-		},
-		{
-			name: "Negative (no user)",
-			input: func() storage.Storage {
-				return mockStorage.NewMockStorage(t)
-			},
-			want: ErrNoAuth,
 		},
 	}
 

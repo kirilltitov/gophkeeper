@@ -8,14 +8,14 @@ import (
 	"github.com/kirilltitov/gophkeeper/internal/utils"
 )
 
-// HandlerRenameSecret renames an existing secret.
+// HandlerChangeSecretDescription changes an existing secret's description.
 //
 // Example request:
 //
-// POST /api/secret/{ID}/rename
+// POST /api/secret/{ID}/change_description
 //
 //	{
-//		"name": "new name"
+//		"description": "new description"
 //	}
 //
 // Example response:
@@ -26,8 +26,8 @@ import (
 //		"error":   null
 //	}
 //
-// May response with codes 200, 401, 409, 500.
-func (a *Application) HandlerRenameSecret(w http.ResponseWriter, r *http.Request) {
+// May response with codes 200, 401, 500.
+func (a *Application) HandlerChangeSecretDescription(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	var err error
@@ -45,7 +45,7 @@ func (a *Application) HandlerRenameSecret(w http.ResponseWriter, r *http.Request
 	}
 
 	var req struct {
-		Name string `json:"name" validate:"required"`
+		Description string `json:"description" validate:"required"`
 	}
 
 	defer r.Body.Close()
@@ -54,7 +54,7 @@ func (a *Application) HandlerRenameSecret(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err = a.Gophkeeper.RenameSecret(ctx, *secretID, req.Name)
+	err = a.Gophkeeper.ChangeSecretDescription(ctx, *secretID, req.Description)
 	if err != nil {
 		code := http.StatusInternalServerError
 		if errors.Is(err, storage.ErrDuplicateSecretFound) {

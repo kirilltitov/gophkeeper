@@ -7,8 +7,6 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-
 	"github.com/kirilltitov/gophkeeper/internal/gophkeeper"
 	"github.com/kirilltitov/gophkeeper/internal/utils"
 )
@@ -75,8 +73,6 @@ func (a *Application) createRouter() chi.Router {
 
 	r.Use(utils.WithLogging)
 
-	r.Mount("/debug", middleware.Profiler())
-
 	r.Route("/api", func(r chi.Router) {
 		r.Post("/login", a.HandlerLogin)
 		r.Post("/register", a.HandlerRegister)
@@ -87,6 +83,7 @@ func (a *Application) createRouter() chi.Router {
 			r.Get("/{ID}", a.HandlerGetSecret)
 			r.Delete("/{ID}", a.HandlerDeleteSecret)
 			r.Post("/{ID}/rename", a.HandlerRenameSecret)
+			r.Post("/{ID}/change_description", a.HandlerChangeSecretDescription)
 
 			r.Get("/list", a.HandlerGetSecrets)
 

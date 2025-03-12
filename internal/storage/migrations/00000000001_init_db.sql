@@ -13,6 +13,7 @@ create table public.secret
     id           uuid         not null primary key,
     user_id      uuid         not null references public.user (id) on delete cascade,
     name         varchar      not null,
+    description  varchar      not null,
     kind         secret_kind  not null,
     is_encrypted bool         not null,
     unique (user_id, name)
@@ -21,6 +22,7 @@ create table public.secret
 create table public.secret_credentials
 (
     id       uuid    not null primary key references secret (id) on delete cascade,
+    url      varchar not null,
     login    varchar not null,
     password varchar not null
 );

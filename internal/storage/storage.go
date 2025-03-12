@@ -22,11 +22,14 @@ type Storage interface {
 	// RenameSecret renames secret.
 	RenameSecret(ctx context.Context, secretID uuid.UUID, name string) error
 
+	// ChangeSecretDescription changes secret description.
+	ChangeSecretDescription(ctx context.Context, secretID uuid.UUID, description string) error
+
 	// DeleteSecret deletes a secret from a DB.
 	DeleteSecret(ctx context.Context, secretID uuid.UUID) error
 
 	// EditSecretCredentials edits secret credentials with new values.
-	EditSecretCredentials(ctx context.Context, secret *Secret, login string, password string) error
+	EditSecretCredentials(ctx context.Context, secret *Secret, url, login, password string) error
 
 	// EditSecretNote edits secret note with new values.
 	EditSecretNote(ctx context.Context, secret *Secret, body string) error
@@ -44,7 +47,7 @@ type Storage interface {
 	LoadSecretByID(ctx context.Context, ID uuid.UUID) (*Secret, error)
 
 	// LoadSecrets loads all secrets for given user.
-	LoadSecrets(ctx context.Context, userID uuid.UUID) (*[]Secret, error)
+	LoadSecrets(ctx context.Context, userID uuid.UUID) ([]*Secret, error)
 
 	// AddTag adds a tag to given secret.
 	AddTag(ctx context.Context, secretID uuid.UUID, tag string) error

@@ -4,8 +4,6 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/google/uuid"
-
 	"github.com/kirilltitov/gophkeeper/internal/storage"
 	"github.com/kirilltitov/gophkeeper/internal/utils"
 	"github.com/kirilltitov/gophkeeper/pkg/api"
@@ -20,6 +18,7 @@ import (
 //
 //	{
 //		"name": "secret name",
+//		"description": "secret description",
 //		"is_encrypted": true,
 //		"value": {
 //			"body": "0JrQsNC60L7QuS3RgtC+INCx0LXQudC3NjQg0L3QsNC/0YDQuNC80LXRgA=="
@@ -49,9 +48,6 @@ func (a *Application) HandlerCreateSecretBlob(w http.ResponseWriter, r *http.Req
 	}
 
 	var req api.BaseCreateSecretRequest[api.SecretBlob]
-	type response struct {
-		ID uuid.UUID `json:"id"`
-	}
 
 	defer r.Body.Close()
 	err = parseRequest(w, r.Body, &req)
@@ -61,6 +57,7 @@ func (a *Application) HandlerCreateSecretBlob(w http.ResponseWriter, r *http.Req
 
 	secret := &storage.Secret{
 		Name:        req.Name,
+		Description: req.Description,
 		IsEncrypted: req.IsEncrypted,
 		Value: &storage.SecretBlob{
 			Body: req.Value.Body,

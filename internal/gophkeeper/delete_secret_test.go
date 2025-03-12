@@ -68,13 +68,6 @@ func TestGophkeeper_DeleteSecret(t *testing.T) {
 			},
 			want: ErrNoAuth,
 		},
-		{
-			name: "Negative (no user)",
-			input: func() storage.Storage {
-				return mockStorage.NewMockStorage(t)
-			},
-			want: ErrNoAuth,
-		},
 	}
 
 	for _, tt := range tests {

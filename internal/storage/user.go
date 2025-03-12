@@ -57,10 +57,11 @@ func NewUser(id uuid.UUID, login string, rawPassword string) User {
 	return user
 }
 
-func loadUser(ctx context.Context, tx pgx.Tx, login string) (*User, error) {
-	var row User
+// LoadUser loads a user from DB for given login.
+func (s *PgSQL) LoadUser(ctx context.Context, login string) (*User, error) {
+	var result User
 
-	if err := pgxscan.Get(ctx, tx, &row, `select * from public.user where login = $1`, login); err != nil {
+	if err := pgxscan.Get(ctx, s.Conn, &result, `select * from public.user where login = $1`, login); err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, ErrNotFound
 		} else {
@@ -68,46 +69,20 @@ func loadUser(ctx context.Context, tx pgx.Tx, login string) (*User, error) {
 		}
 	}
 
-	return &row, nil
-}
-
-func createUser(ctx context.Context, tx pgx.Tx, user User) error {
-	query := `insert into public.user (id, login, password, created_at) values ($1, $2, $3, $4)`
-	_, err := tx.Exec(ctx, query, user.ID, user.Login, user.Password, user.CreatedAt)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// LoadUser loads a user from DB for given login.
-func (s *PgSQL) LoadUser(ctx context.Context, login string) (*User, error) {
-	return WithTransaction(ctx, s, func(tx pgx.Tx) (*User, error) {
-		user, err := loadUser(ctx, tx, login)
-		if err != nil {
-			return nil, err
-		}
-
-		if err := tx.Commit(ctx); err != nil {
-			return nil, err
-		}
-
-		return user, nil
-	})
+	return &result, nil
 }
 
 // CreateUser creates a new user in DB.
 func (s *PgSQL) CreateUser(ctx context.Context, user User) error {
-	return WithVoidTransaction(ctx, s, func(tx pgx.Tx) error {
-		if err := createUser(ctx, tx, user); err != nil {
-			var pgErr *pgconn.PgError
-			if errors.As(err, &pgErr) && pgErr.Code == "23505" {
-				return ErrDuplicateUserFound
-			}
-			return err
+	query := `insert into public.user (id, login, password, created_at) values ($1, $2, $3, $4)`
+	_, err := s.Conn.Exec(ctx, query, user.ID, user.Login, user.Password, user.CreatedAt)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return ErrDuplicateUserFound
 		}
+		return err
+	}
 
-		return tx.Commit(ctx)
-	})
+	return nil
 }

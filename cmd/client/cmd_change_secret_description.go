@@ -8,14 +8,19 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-func cmdDeleteSecret() *cli.Command {
+func cmdChangeSecretDescription() *cli.Command {
 	return &cli.Command{
-		Name:  "delete-secret",
-		Usage: "Deletes secret",
+		Name:  "change-description",
+		Usage: "Changes secret description",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     flagSecretName,
 				Usage:    "Secret name",
+				Required: true,
+			},
+			&cli.StringFlag{
+				Name:     flagSecretDescription,
+				Usage:    "New secret description",
 				Required: true,
 			},
 		},
@@ -24,6 +29,7 @@ func cmdDeleteSecret() *cli.Command {
 			w := cmd.Root().Writer
 
 			name := cmd.String(flagSecretName)
+			newDescription := cmd.String(flagSecretDescription)
 
 			if err := syncSecrets(ctx); err != nil {
 				return err
@@ -35,15 +41,15 @@ func cmdDeleteSecret() *cli.Command {
 			}
 
 			type req struct {
-				Name string `json:"name"`
+				Description string `json:"description"`
 			}
 
 			code, err := SendRequest[req](
 				c,
 				ctx,
-				fmt.Sprintf("/api/secret/%s", existingSecret.ID),
-				http.MethodDelete,
-				nil,
+				fmt.Sprintf("/api/secret/%s/change_description", existingSecret.ID),
+				http.MethodPost,
+				req{Description: newDescription},
 				nil,
 			)
 			if err != nil {
@@ -57,7 +63,7 @@ func cmdDeleteSecret() *cli.Command {
 				return err
 			}
 
-			fmt.Fprintf(w, "Successfully delete secret '%s'", name)
+			fmt.Fprint(w, "Successfully changed secret description\n")
 
 			return nil
 		},

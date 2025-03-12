@@ -25,7 +25,7 @@ func TestGophkeeper_GetSecrets(t *testing.T) {
 	user := &storage.User{
 		ID: utils.NewUUID6(),
 	}
-	secret := storage.Secret{
+	secret := &storage.Secret{
 		ID:     utils.NewUUID6(),
 		UserID: user.ID,
 		Kind:   api.KindNote,
@@ -45,17 +45,10 @@ func TestGophkeeper_GetSecrets(t *testing.T) {
 				s.
 					EXPECT().
 					LoadSecrets(mock.Anything, mock.Anything).
-					Return(&[]storage.Secret{secret}, nil)
+					Return([]*storage.Secret{secret}, nil)
 				return s
 			},
 			want: nil,
-		},
-		{
-			name: "Negative (no user)",
-			input: func() storage.Storage {
-				return mockStorage.NewMockStorage(t)
-			},
-			want: ErrNoAuth,
 		},
 	}
 

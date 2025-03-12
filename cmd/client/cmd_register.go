@@ -58,12 +58,10 @@ func cmdRegister() *cli.Command {
 				return errors.Wrap(err, "could not register")
 			}
 
-			if resp.StatusCode != 200 {
+			if resp.StatusCode != http.StatusOK {
 				switch resp.StatusCode {
 				case http.StatusConflict:
 					return errors.New("user with given login already exists")
-				case http.StatusBadRequest:
-					return errors.New("empty login or password")
 				default:
 					return fmt.Errorf("unexpected status code %d", resp.StatusCode)
 				}

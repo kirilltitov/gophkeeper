@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/kirilltitov/gophkeeper/internal/utils"
@@ -11,6 +12,11 @@ import (
 // PgSQL is an implementation of Storage interface which loads actual records in PostgreSQL DB.
 type PgSQL struct {
 	Conn *pgxpool.Pool // Conn is a PostgreSQL connection pool.
+}
+
+// Execer allows to execute DB queries
+type Execer interface {
+	Exec(ctx context.Context, sql string, arguments ...any) (pgconn.CommandTag, error)
 }
 
 // New creates and returns a fully configured PgSQL instance.

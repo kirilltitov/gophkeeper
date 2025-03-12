@@ -7,8 +7,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/kirilltitov/gophkeeper/pkg/api"
 	"github.com/urfave/cli/v3"
+
+	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
 func cmdAddTag() *cli.Command {
@@ -30,6 +31,10 @@ func cmdAddTag() *cli.Command {
 			tag := strings.TrimSpace(strings.Join(cmd.Args().Slice(), " "))
 			if tag == "" {
 				return errors.New("you haven't provided tag")
+			}
+
+			if err := syncSecrets(ctx); err != nil {
+				return err
 			}
 
 			name := cmd.String(flagSecretName)
@@ -54,12 +59,11 @@ func cmdAddTag() *cli.Command {
 				return err
 			}
 			if code != http.StatusOK {
-				switch code {
-				case http.StatusUnauthorized:
-					return errors.New("unauthorized")
-				default:
-					return fmt.Errorf("unexpected status code %d", code)
-				}
+				return fmt.Errorf("unexpected status code %d", code)
+			}
+
+			if err := syncSecrets(ctx); err != nil {
+				return err
 			}
 
 			fmt.Fprintf(w, "Successfully added tag '%s' to secret '%s'", tag, existingSecret.Name)

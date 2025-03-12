@@ -90,6 +90,7 @@ func TestApplication_HandlerCreateSecretBlob(t *testing.T) {
 				body: `
 					{
 						"name": "secret blob",
+						"description": "some description",
 						"value": {
 							"body": "foo"
 						}
@@ -116,6 +117,7 @@ func TestApplication_HandlerCreateSecretBlob(t *testing.T) {
 				body: `
 					{
 						"name": "secret blob",
+						"description": "some description",
 						"value": {
 							"body": "foo"
 						}

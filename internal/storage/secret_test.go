@@ -110,6 +110,24 @@ func TestPgSQL_RenameSecret(t *testing.T) {
 	require.NoError(t, err)
 }
 
+func TestPgSQL_ChangeSecretDescription(t *testing.T) {
+	ctx := context.Background()
+	s := setUp(ctx, t)
+
+	var err error
+
+	user := createRandomUser(ctx, s, t)
+
+	existingSecret := createRandomSecretForUser(t, ctx, s, user)
+	newSecret := createRandomSecretForUser(t, ctx, s, user)
+
+	err = s.RenameSecret(ctx, newSecret.ID, existingSecret.Name)
+	require.ErrorIs(t, err, ErrDuplicateSecretFound)
+
+	err = s.RenameSecret(ctx, newSecret.ID, rand.RandomString(10))
+	require.NoError(t, err)
+}
+
 func TestPgSQL_LoadSecretByName(t *testing.T) {
 	ctx := context.Background()
 	s := setUp(ctx, t)
@@ -151,7 +169,7 @@ func TestPgSQL_LoadSecrets(t *testing.T) {
 
 	loadedSecrets, err := s.LoadSecrets(ctx, user.ID)
 	require.NoError(t, err)
-	require.Len(t, *loadedSecrets, 0)
+	require.Len(t, loadedSecrets, 0)
 
 	const numSecrets = 5
 	for i := 0; i < numSecrets; i++ {
@@ -177,7 +195,7 @@ func TestPgSQL_LoadSecrets(t *testing.T) {
 	loadedSecrets, err = s.LoadSecrets(ctx, user.ID)
 	require.NoError(t, err)
 	require.NotNil(t, loadedSecrets)
-	require.Len(t, *loadedSecrets, numSecrets)
+	require.Len(t, loadedSecrets, numSecrets)
 }
 
 func TestPgSQL_LoadSecret_values(t *testing.T) {
@@ -262,6 +280,7 @@ func TestPgSQL_LoadSecret_values(t *testing.T) {
 				Kind:   api.KindCredentials,
 				Value: &SecretCredentials{
 					ID:       secretID,
+					URL:      rand.RandomString(10),
 					Login:    rand.RandomString(10),
 					Password: rand.RandomString(10),
 				},

@@ -24,7 +24,7 @@ import (
 	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
-func TestApplication_HandlerRenameSecret(t *testing.T) {
+func TestApplication_HandlerChangeSecretDescription(t *testing.T) {
 	a := Application{
 		Gophkeeper: &gophkeeper.Gophkeeper{
 			Config:    config.NewWithoutParsing(),
@@ -106,7 +106,7 @@ func TestApplication_HandlerRenameSecret(t *testing.T) {
 			input: input{
 				body: `
 					{
-						"name": "bar"
+						"description": "new description"
 					}
 				`,
 				secretID: utils.NewUUID6().String(),
@@ -119,7 +119,7 @@ func TestApplication_HandlerRenameSecret(t *testing.T) {
 						Return(&storage.Secret{UserID: userID, Kind: api.KindNote}, nil)
 					s.
 						EXPECT().
-						RenameSecret(mock.Anything, mock.Anything, mock.Anything).
+						ChangeSecretDescription(mock.Anything, mock.Anything, mock.Anything).
 						Return(nil)
 					return s
 				},
@@ -137,7 +137,7 @@ func TestApplication_HandlerRenameSecret(t *testing.T) {
 
 			r := httptest.NewRequest(
 				http.MethodPost,
-				"/api/secret/2a9186b1-d39f-49cb-99a9-b6e8a25293a2/rename",
+				"/api/secret/2a9186b1-d39f-49cb-99a9-b6e8a25293a2/edit_description",
 				bytes.NewReader([]byte(tt.input.body)),
 			)
 			if tt.input.userID != nil {
@@ -152,7 +152,7 @@ func TestApplication_HandlerRenameSecret(t *testing.T) {
 
 			w := httptest.NewRecorder()
 
-			a.HandlerRenameSecret(w, r)
+			a.HandlerChangeSecretDescription(w, r)
 
 			result := w.Result()
 			defer result.Body.Close()

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/pkg/errors"
 	"github.com/urfave/cli/v3"
 
 	"github.com/kirilltitov/gophkeeper/pkg/api"
@@ -23,6 +22,11 @@ func cmdEditSecretCredentials() *cli.Command {
 				Required: true,
 			},
 			&cli.StringFlag{
+				Name:     flagSecretURL,
+				Usage:    "Credentials URL",
+				Required: true,
+			},
+			&cli.StringFlag{
 				Name:     flagSecretLogin,
 				Usage:    "Credentials login",
 				Required: true,
@@ -34,6 +38,10 @@ func cmdEditSecretCredentials() *cli.Command {
 
 			var err error
 
+			if err := syncSecrets(ctx); err != nil {
+				return err
+			}
+
 			name := cmd.String(flagSecretName)
 			existingSecret, found := secretsByName[name]
 			if !found {
@@ -41,6 +49,7 @@ func cmdEditSecretCredentials() *cli.Command {
 			}
 
 			var login = cmd.String(flagLogin)
+			var URL = cmd.String(flagSecretURL)
 
 			password, err := readPassword(w, "Enter secret credentials password: ")
 			if err != nil {
@@ -50,6 +59,11 @@ func cmdEditSecretCredentials() *cli.Command {
 			if existingSecret.IsEncrypted {
 				fmt.Fprint(w, noticeSecretIsEncrypted)
 				encryptionKeyBytes, err := getEncryptionKeyBytes(cmd, true)
+				if err != nil {
+					return err
+				}
+
+				URL, err = encrypt(encryptionKeyBytes, []byte(URL))
 				if err != nil {
 					return err
 				}
@@ -66,6 +80,7 @@ func cmdEditSecretCredentials() *cli.Command {
 			}
 
 			req := api.SecretCredentials{
+				URL:      URL,
 				Login:    login,
 				Password: password,
 			}
@@ -82,12 +97,11 @@ func cmdEditSecretCredentials() *cli.Command {
 				return err
 			}
 			if code != http.StatusOK {
-				switch code {
-				case http.StatusUnauthorized:
-					return errors.New("unauthorized")
-				default:
-					return fmt.Errorf("unexpected status code %d", code)
-				}
+				return fmt.Errorf("unexpected status code %d", code)
+			}
+
+			if err := syncSecrets(ctx); err != nil {
+				return err
 			}
 
 			fmt.Fprintf(w, "Successfully edited secret credentials '%s'", existingSecret.Name)

@@ -17,6 +17,7 @@ import (
 //
 //	{
 //		"name": "secret name",
+//		"description": "secret description",
 //		"is_encrypted": true,
 //		"value": {
 //			"login":    "frank_strino",
@@ -56,8 +57,10 @@ func (a *Application) HandlerCreateSecretCredentials(w http.ResponseWriter, r *h
 
 	secret := &storage.Secret{
 		Name:        req.Name,
+		Description: req.Description,
 		IsEncrypted: req.IsEncrypted,
 		Value: &storage.SecretCredentials{
+			URL:      req.Value.URL,
 			Login:    req.Value.Login,
 			Password: req.Value.Password,
 		},

@@ -128,6 +128,7 @@ func TestPgSQL_EditSecretCredentials(t *testing.T) {
 		Kind:   api.KindCredentials,
 		Value: &SecretCredentials{
 			ID:       secretID,
+			URL:      "https://ya.ru",
 			Login:    "teonoman",
 			Password: "megapass",
 		},
@@ -137,10 +138,11 @@ func TestPgSQL_EditSecretCredentials(t *testing.T) {
 
 	newCredentials := &SecretCredentials{
 		ID:       secretID,
+		URL:      "https://passport.yandex.ru/auth",
 		Login:    "teonoman2",
 		Password: "megapass2",
 	}
-	err = s.EditSecretCredentials(ctx, secret, newCredentials.Login, newCredentials.Password)
+	err = s.EditSecretCredentials(ctx, secret, newCredentials.URL, newCredentials.Login, newCredentials.Password)
 	require.NoError(t, err)
 
 	loadedSecret, err := s.LoadSecretByName(ctx, secret.UserID, secret.Name)

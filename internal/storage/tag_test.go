@@ -82,7 +82,7 @@ func TestPgSQL_LoadSecrets_with_tags(t *testing.T) {
 
 	loadedSecrets, err := s.LoadSecrets(ctx, user.ID)
 	require.NoError(t, err)
-	loadedSecret := (*loadedSecrets)[0]
+	loadedSecret := (loadedSecrets)[0]
 	require.Len(t, loadedSecret.Tags, 2)
 	require.Equal(t, loadedSecret.Tags, Tags{tag1, tag2})
 }

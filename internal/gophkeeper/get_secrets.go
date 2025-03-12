@@ -8,7 +8,7 @@ import (
 )
 
 // GetSecrets returns all secrets for current user.
-func (g *Gophkeeper) GetSecrets(ctx context.Context) (*[]storage.Secret, error) {
+func (g *Gophkeeper) GetSecrets(ctx context.Context) ([]*storage.Secret, error) {
 	userID, ok := utils.GetUserID(ctx)
 	if !ok {
 		return nil, ErrNoAuth

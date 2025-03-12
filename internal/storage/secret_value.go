@@ -13,7 +13,7 @@ import (
 )
 
 // kindsLoadMap contains a mapping of all kinds (see [api.Kinds]) to their respective loading functions.
-var kindsLoadMap = map[api.Kind]func(ctx context.Context, tx pgx.Tx, secret *Secret) (SecretValue, error){
+var kindsLoadMap = map[api.Kind]func(ctx context.Context, querier pgxscan.Querier, secret *Secret) (SecretValue, error){
 	api.KindCredentials: loadSecretCredentialsValue,
 	api.KindNote:        loadSecretNoteValue,
 	api.KindBlob:        loadSecretBlobValue,
@@ -23,18 +23,18 @@ var kindsLoadMap = map[api.Kind]func(ctx context.Context, tx pgx.Tx, secret *Sec
 // SecretValue is an interface defining all common methods for all kinds of secrets (see [api.Kinds]).
 type SecretValue interface {
 	SetID(id uuid.UUID)
-	CreateValue(ctx context.Context, tx pgx.Tx, secret *Secret) error
+	CreateValue(ctx context.Context, execer Execer, secret *Secret) error
 	Kind() api.Kind
 }
 
-// EditSecretCredentials edits secret credentials with new values.
-func (s *PgSQL) EditSecretCredentials(ctx context.Context, secret *Secret, login string, password string) error {
+// EditSecretCredentials edits secret execer with new values.
+func (s *PgSQL) EditSecretCredentials(ctx context.Context, secret *Secret, url, login, password string) error {
 	if secret.Kind != api.KindCredentials {
 		return ErrWrongKind
 	}
 
-	query := `update public.secret_credentials set login = $1, password = $2 where id = $3`
-	_, err := s.Conn.Exec(ctx, query, login, password, secret.ID)
+	query := `update public.secret_credentials set url = $1, login = $2, password = $3 where id = $4`
+	_, err := s.Conn.Exec(ctx, query, url, login, password, secret.ID)
 	return err
 }
 
@@ -72,46 +72,46 @@ func (s *PgSQL) EditSecretBankCard(ctx context.Context, secret *Secret, name, nu
 }
 
 // CreateValue creates a new secret value.
-func (s *SecretBankCard) CreateValue(ctx context.Context, tx pgx.Tx, secret *Secret) error {
+func (s *SecretBankCard) CreateValue(ctx context.Context, execer Execer, secret *Secret) error {
 	if secret.Kind != api.KindBankCard {
 		return ErrWrongKind
 	}
 
 	query := `insert into public.secret_bank_card (id, name, number, date, cvv) values ($1, $2, $3, $4, $5)`
-	_, err := tx.Exec(ctx, query, s.ID, s.Name, s.Number, s.Date, s.CVV)
+	_, err := execer.Exec(ctx, query, s.ID, s.Name, s.Number, s.Date, s.CVV)
 	return err
 }
 
 // CreateValue creates a new secret value.
-func (s *SecretBlob) CreateValue(ctx context.Context, tx pgx.Tx, secret *Secret) error {
+func (s *SecretBlob) CreateValue(ctx context.Context, execer Execer, secret *Secret) error {
 	if secret.Kind != api.KindBlob {
 		return ErrWrongKind
 	}
 
 	query := `insert into public.secret_blob (id, body) values ($1, $2)`
-	_, err := tx.Exec(ctx, query, s.ID, s.Body)
+	_, err := execer.Exec(ctx, query, s.ID, s.Body)
 	return err
 }
 
 // CreateValue creates a new secret value.
-func (s *SecretNote) CreateValue(ctx context.Context, tx pgx.Tx, secret *Secret) error {
+func (s *SecretNote) CreateValue(ctx context.Context, execer Execer, secret *Secret) error {
 	if secret.Kind != api.KindNote {
 		return ErrWrongKind
 	}
 
 	query := `insert into public.secret_note (id, body) values ($1, $2)`
-	_, err := tx.Exec(ctx, query, s.ID, s.Body)
+	_, err := execer.Exec(ctx, query, s.ID, s.Body)
 	return err
 }
 
 // CreateValue creates a new secret value.
-func (s *SecretCredentials) CreateValue(ctx context.Context, tx pgx.Tx, secret *Secret) error {
+func (s *SecretCredentials) CreateValue(ctx context.Context, execer Execer, secret *Secret) error {
 	if secret.Kind != api.KindCredentials {
 		return ErrWrongKind
 	}
 
-	query := `insert into public.secret_credentials (id, login, password) values ($1, $2, $3)`
-	_, err := tx.Exec(ctx, query, s.ID, s.Login, s.Password)
+	query := `insert into public.secret_credentials (id, url, login, password) values ($1, $2, $3, $4)`
+	_, err := execer.Exec(ctx, query, s.ID, s.URL, s.Login, s.Password)
 	return err
 }
 
@@ -155,22 +155,22 @@ func (s *SecretCredentials) Kind() api.Kind {
 	return api.KindCredentials
 }
 
-func loadSecretValue(ctx context.Context, tx pgx.Tx, secret *Secret) (SecretValue, error) {
+func loadSecretValue(ctx context.Context, querier pgxscan.Querier, secret *Secret) (SecretValue, error) {
 	loadFunc, ok := kindsLoadMap[secret.Kind]
 	if !ok {
 		utils.Log.Errorf("Invalid secret kind '%s' for secret %s", secret.Kind, secret.ID.String())
 		return nil, ErrInvalidKind
 	}
 
-	return loadFunc(ctx, tx, secret)
+	return loadFunc(ctx, querier, secret)
 }
 
-func loadSecretBankCardValue(ctx context.Context, tx pgx.Tx, secret *Secret) (SecretValue, error) {
+func loadSecretBankCardValue(ctx context.Context, querier pgxscan.Querier, secret *Secret) (SecretValue, error) {
 	var result SecretBankCard
 
 	err := pgxscan.Get(
 		ctx,
-		tx,
+		querier,
 		&result,
 		`select * from public.secret_bank_card where id = $1`,
 		secret.ID,
@@ -186,12 +186,12 @@ func loadSecretBankCardValue(ctx context.Context, tx pgx.Tx, secret *Secret) (Se
 	return &result, nil
 }
 
-func loadSecretBlobValue(ctx context.Context, tx pgx.Tx, secret *Secret) (SecretValue, error) {
+func loadSecretBlobValue(ctx context.Context, querier pgxscan.Querier, secret *Secret) (SecretValue, error) {
 	var result SecretBlob
 
 	err := pgxscan.Get(
 		ctx,
-		tx,
+		querier,
 		&result,
 		`select * from public.secret_blob where id = $1`,
 		secret.ID,
@@ -207,12 +207,12 @@ func loadSecretBlobValue(ctx context.Context, tx pgx.Tx, secret *Secret) (Secret
 	return &result, nil
 }
 
-func loadSecretNoteValue(ctx context.Context, tx pgx.Tx, secret *Secret) (SecretValue, error) {
+func loadSecretNoteValue(ctx context.Context, querier pgxscan.Querier, secret *Secret) (SecretValue, error) {
 	var result SecretNote
 
 	err := pgxscan.Get(
 		ctx,
-		tx,
+		querier,
 		&result,
 		`select * from public.secret_note where id = $1`,
 		secret.ID,
@@ -228,18 +228,23 @@ func loadSecretNoteValue(ctx context.Context, tx pgx.Tx, secret *Secret) (Secret
 	return &result, nil
 }
 
-func loadSecretCredentialsValue(ctx context.Context, tx pgx.Tx, secret *Secret) (SecretValue, error) {
+func loadSecretCredentialsValue(ctx context.Context, querier pgxscan.Querier, secret *Secret) (SecretValue, error) {
 	var result SecretCredentials
 
 	err := pgxscan.Get(
 		ctx,
-		tx,
+		querier,
 		&result,
 		`select * from public.secret_credentials where id = $1`,
 		secret.ID,
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
+			utils.Log.Errorf(
+				"Missing secret value '%s' for secret %s, this MUST NOT ever happen",
+				secret.Kind,
+				secret.ID.String(),
+			)
 			return nil, ErrNotFound
 		} else {
 			return nil, err

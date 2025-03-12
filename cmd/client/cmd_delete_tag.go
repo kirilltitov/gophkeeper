@@ -33,6 +33,10 @@ func cmdDeleteTag() *cli.Command {
 				return errors.New("you haven't provided tag")
 			}
 
+			if err := syncSecrets(ctx); err != nil {
+				return err
+			}
+
 			name := cmd.String(flagSecretName)
 			existingSecret, found := secretsByName[name]
 			if !found {
@@ -55,12 +59,11 @@ func cmdDeleteTag() *cli.Command {
 				return err
 			}
 			if code != http.StatusOK {
-				switch code {
-				case http.StatusUnauthorized:
-					return errors.New("unauthorized")
-				default:
-					return fmt.Errorf("unexpected status code %d", code)
-				}
+				return fmt.Errorf("unexpected status code %d", code)
+			}
+
+			if err := syncSecrets(ctx); err != nil {
+				return err
 			}
 
 			fmt.Fprintf(w, "Successfully deleted tag '%s' from secret '%s'", tag, existingSecret.Name)

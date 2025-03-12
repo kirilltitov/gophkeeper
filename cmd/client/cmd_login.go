@@ -70,15 +70,14 @@ func cmdLogin() *cli.Command {
 				},
 			)
 			if err != nil {
+				if errors.Is(err, errUnauthorized) {
+					return errors.New("incorrect login or password")
+				}
 				return errors.Wrap(err, "could not login")
 			}
 
-			if resp.StatusCode != 200 {
-				if resp.StatusCode == http.StatusUnauthorized {
-					return errors.New("incorrect login or password")
-				} else {
-					return fmt.Errorf("unexpected status code %d", resp.StatusCode)
-				}
+			if resp.StatusCode != http.StatusOK {
+				return fmt.Errorf("unexpected status code %d", resp.StatusCode)
 			}
 
 			jwtCookie := findAuthCookie(resp.Cookies(), cmd.String(flagAuthCookieName))
@@ -92,7 +91,7 @@ func cmdLogin() *cli.Command {
 
 			fmt.Fprintf(cmd.Root().Writer, "Successfully logged in\n")
 
-			return nil
+			return cmdSync().Run(ctx, cmd.Args().Slice())
 		},
 	}
 }

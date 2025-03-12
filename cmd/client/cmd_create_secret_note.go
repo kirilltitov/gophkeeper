@@ -29,6 +29,10 @@ func cmdCreateSecretNote() *cli.Command {
 				Required: true,
 			},
 			&cli.StringFlag{
+				Name:  flagSecretDescription,
+				Usage: "Secret description",
+			},
+			&cli.StringFlag{
 				Name:  flagSecretNoteFile,
 				Usage: "Path to the file with secret note",
 			},
@@ -84,6 +88,7 @@ func cmdCreateSecretNote() *cli.Command {
 
 			req := api.BaseCreateSecretRequest[api.SecretNote]{
 				Name:        cmd.String(flagSecretName),
+				Description: cmd.String(flagSecretDescription),
 				IsEncrypted: isEncryptionEnabled,
 				Value: api.SecretNote{
 					Body: note,
@@ -98,13 +103,15 @@ func cmdCreateSecretNote() *cli.Command {
 			}
 			if code != http.StatusCreated {
 				switch code {
-				case http.StatusUnauthorized:
-					return errors.New("unauthorized")
 				case http.StatusConflict:
 					return errors.New("secret with this name already exists")
 				default:
 					return fmt.Errorf("unexpected status code %d", code)
 				}
+			}
+
+			if err := syncSecrets(ctx); err != nil {
+				return err
 			}
 
 			fmt.Fprintf(w, "Successfully created secret note '%s' with id '%s'", req.Name, resp.ID.String())

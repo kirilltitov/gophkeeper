@@ -30,6 +30,10 @@ func cmdCreateSecretBankCard() *cli.Command {
 				Required: true,
 			},
 			&cli.StringFlag{
+				Name:  flagSecretDescription,
+				Usage: "Secret description",
+			},
+			&cli.StringFlag{
 				Name:     flagCardHolder,
 				Usage:    "Cardholder name",
 				Required: true,
@@ -89,6 +93,7 @@ func cmdCreateSecretBankCard() *cli.Command {
 
 			req := api.BaseCreateSecretRequest[api.SecretBankCard]{
 				Name:        cmd.String(flagSecretName),
+				Description: cmd.String(flagSecretDescription),
 				IsEncrypted: isEncryptionEnabled,
 				Value: api.SecretBankCard{
 					Name:   cardHolder,
@@ -106,13 +111,15 @@ func cmdCreateSecretBankCard() *cli.Command {
 			}
 			if code != http.StatusCreated {
 				switch code {
-				case http.StatusUnauthorized:
-					return errors.New("unauthorized")
 				case http.StatusConflict:
 					return errors.New("secret with this name already exists")
 				default:
 					return fmt.Errorf("unexpected status code %d", code)
 				}
+			}
+
+			if err := syncSecrets(ctx); err != nil {
+				return err
 			}
 
 			fmt.Fprintf(w, "Successfully created secret bank card '%s' with id '%s'", req.Name, resp.ID.String())

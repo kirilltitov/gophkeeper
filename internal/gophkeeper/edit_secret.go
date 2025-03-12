@@ -12,7 +12,7 @@ import (
 func (g *Gophkeeper) EditSecretCredentials(
 	ctx context.Context,
 	secretID uuid.UUID,
-	login, password string,
+	url, login, password string,
 ) error {
 	secret, err := g.loadSecretAndAuthorize(ctx, secretID)
 	if err != nil {
@@ -23,7 +23,7 @@ func (g *Gophkeeper) EditSecretCredentials(
 		return storage.ErrWrongKind
 	}
 
-	return g.Container.Storage.EditSecretCredentials(ctx, secret, login, password)
+	return g.Container.Storage.EditSecretCredentials(ctx, secret, url, login, password)
 }
 
 // EditSecretNote edits existing secret note.

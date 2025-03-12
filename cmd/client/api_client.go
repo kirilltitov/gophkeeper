@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
+	"net"
 	"net/http"
 	"strings"
 	"time"
@@ -68,8 +70,20 @@ func (c *client) SendRawRequest(
 
 	if err != nil {
 		logger.Debugf("Failed to do API request: %s", err.Error())
+		return nil, err
 	} else {
 		logger.Debugf("Received API response. Status code: %d", result.StatusCode)
+	}
+
+	switch result.StatusCode {
+	case http.StatusInternalServerError:
+		return nil, errInternalServerError
+	case http.StatusBadRequest:
+		return nil, errBadRequest
+	case http.StatusNotFound:
+		return nil, errAPIEndpointNotFound
+	case http.StatusUnauthorized:
+		return nil, errUnauthorized
 	}
 
 	return result, err
@@ -88,9 +102,6 @@ func SendRequest[R any](
 	rawResponse, err := c.SendRawRequest(ctx, url, method, request)
 	if err != nil {
 		return 0, err
-	}
-	if rawResponse.StatusCode == http.StatusNotFound {
-		return http.StatusNotFound, errAPIEndpointNotFound
 	}
 
 	defer rawResponse.Body.Close()
@@ -115,4 +126,13 @@ func SendRequest[R any](
 	}
 
 	return rawResponse.StatusCode, nil
+}
+
+func isOffline(err error) bool {
+	var opError *net.OpError
+	if errors.As(err, &opError) {
+		return true
+	}
+
+	return false
 }

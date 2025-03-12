@@ -14,6 +14,7 @@ import (
 // POST /api/secret/edit/credentials/{ID}
 //
 //	{
+//		"url":      "https://steamcommunity.com/login/home",
 //		"login":    "john.appleseed",
 //		"password": "MoolyFTW"
 //	}
@@ -55,6 +56,7 @@ func (a *Application) HandlerEditSecretCredentials(w http.ResponseWriter, r *htt
 	err = a.Gophkeeper.EditSecretCredentials(
 		ctx,
 		*secretID,
+		req.URL,
 		req.Login,
 		req.Password,
 	)

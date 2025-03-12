@@ -38,6 +38,10 @@ func cmdEditSecretNote() *cli.Command {
 
 			var err error
 
+			if err := syncSecrets(ctx); err != nil {
+				return err
+			}
+
 			name := cmd.String(flagSecretName)
 			existingSecret, found := secretsByName[name]
 			if !found {
@@ -101,12 +105,11 @@ func cmdEditSecretNote() *cli.Command {
 				return err
 			}
 			if code != http.StatusOK {
-				switch code {
-				case http.StatusUnauthorized:
-					return errors.New("unauthorized")
-				default:
-					return fmt.Errorf("unexpected status code %d", code)
-				}
+				return fmt.Errorf("unexpected status code %d", code)
+			}
+
+			if err := syncSecrets(ctx); err != nil {
+				return err
 			}
 
 			fmt.Fprintf(w, "Successfully edited secret note '%s'", existingSecret.Name)

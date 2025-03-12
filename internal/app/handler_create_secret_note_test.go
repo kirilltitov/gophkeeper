@@ -90,6 +90,7 @@ func TestApplication_HandlerCreateSecretNote(t *testing.T) {
 				body: `
 					{
 						"name": "secret note",
+						"description": "some description",
 						"value": {
 							"body": "foo"
 						}
@@ -116,6 +117,7 @@ func TestApplication_HandlerCreateSecretNote(t *testing.T) {
 				body: `
 					{
 						"name": "secret note",
+						"description": "some description",
 						"value": {
 							"body": "foo"
 						}

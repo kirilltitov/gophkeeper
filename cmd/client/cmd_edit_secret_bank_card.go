@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/pkg/errors"
 	"github.com/urfave/cli/v3"
 
 	"github.com/kirilltitov/gophkeeper/pkg/api"
@@ -48,6 +47,10 @@ func cmdEditSecretBankCard() *cli.Command {
 			w := cmd.Root().Writer
 
 			var err error
+
+			if err := syncSecrets(ctx); err != nil {
+				return err
+			}
 
 			name := cmd.String(flagSecretName)
 			existingSecret, found := secretsByName[name]
@@ -107,12 +110,11 @@ func cmdEditSecretBankCard() *cli.Command {
 				return err
 			}
 			if code != http.StatusOK {
-				switch code {
-				case http.StatusUnauthorized:
-					return errors.New("unauthorized")
-				default:
-					return fmt.Errorf("unexpected status code %d", code)
-				}
+				return fmt.Errorf("unexpected status code %d", code)
+			}
+
+			if err := syncSecrets(ctx); err != nil {
+				return err
 			}
 
 			fmt.Fprintf(w, "Successfully edited secret bank card '%s'", existingSecret.Name)

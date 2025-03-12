@@ -106,6 +106,7 @@ func TestApplication_HandlerEditSecretCredentials(t *testing.T) {
 			input: input{
 				body: `
 					{
+						"url": "https://ya.ru/",
 						"login": "foo",
 						"password": "bar"
 					}
@@ -120,7 +121,7 @@ func TestApplication_HandlerEditSecretCredentials(t *testing.T) {
 						Return(&storage.Secret{UserID: userID, Kind: api.KindCredentials}, nil)
 					s.
 						EXPECT().
-						EditSecretCredentials(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+						EditSecretCredentials(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 						Return(nil)
 					return s
 				},

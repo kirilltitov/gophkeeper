@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 
 	"github.com/google/uuid"
@@ -17,17 +17,17 @@ import (
 )
 
 const (
-	appDir   = "com.kirilltitov.gophkeeper"
-	authFile = "auth.jwt"
+	appDir = "com.kirilltitov.gophkeeper"
 )
 
 const (
-	flagAddress        = "address"
-	flagAuthCookieName = "auth-cookie-name"
-	flagNoEncrypt      = "no-encrypt"
-	flagSecretName     = "name"
-	flagVerbose        = "verbose"
-	flagVeryVerbose    = "very-verbose"
+	flagAddress           = "address"
+	flagAuthCookieName    = "auth-cookie-name"
+	flagNoEncrypt         = "no-encrypt"
+	flagSecretName        = "name"
+	flagSecretDescription = "description"
+	flagVerbose           = "verbose"
+	flagVeryVerbose       = "very-verbose"
 )
 
 const noticeSecretIsEncrypted = "This secret is encrypted, so you'll have to enter encryption key\n\n"
@@ -43,15 +43,18 @@ var (
 )
 
 var c *client
+
 var secretsByName = make(map[string]*secret)
 var secretsByID = make(map[uuid.UUID]*secret)
 
 type secret struct {
-	ID          uuid.UUID `json:"id"`
-	Name        string    `json:"name"`
-	Kind        string    `json:"kind"`
-	IsEncrypted bool      `json:"is_encrypted"`
-	Tags        []string  `json:"tags"`
+	ID          uuid.UUID       `json:"id"`
+	Name        string          `json:"name"`
+	Description string          `json:"description"`
+	Kind        string          `json:"kind"`
+	IsEncrypted bool            `json:"is_encrypted"`
+	Tags        []string        `json:"tags"`
+	Value       json.RawMessage `json:"value"`
 }
 
 func main() {
@@ -65,6 +68,7 @@ func main() {
 			&cli.StringFlag{
 				Name:    flagAddress,
 				Usage:   "Address (including protocol and port) of the service",
+				Value:   "https://gophkeeper.kirilltitov.com",
 				Aliases: []string{"a"},
 			},
 			&cli.StringFlag{
@@ -90,11 +94,13 @@ func main() {
 		Commands: []*cli.Command{
 			cmdLogin(),
 			cmdRegister(),
+			cmdSync(),
 			cmdCreateSecretBankCard(),
 			cmdCreateSecretCredentials(),
 			cmdCreateSecretNote(),
 			cmdCreateSecretBlob(),
 			cmdRenameSecret(),
+			cmdChangeSecretDescription(),
 			cmdDeleteSecret(),
 			cmdAddTag(),
 			cmdDeleteTag(),
@@ -106,6 +112,7 @@ func main() {
 			cmdGetSecret(),
 			cmdVersion(),
 		},
+		DefaultCommand: "list",
 	}
 
 	if err := cmd.Run(context.Background(), os.Args); err != nil {
@@ -145,8 +152,6 @@ func setup(ctx context.Context, cmd *cli.Command) (context.Context, error) {
 }
 
 func setupAndAuthorize(ctx context.Context, cmd *cli.Command) (context.Context, error) {
-	w := cmd.Root().Writer
-
 	ctx, err := setup(ctx, cmd)
 	if err != nil {
 		return ctx, err
@@ -155,24 +160,6 @@ func setupAndAuthorize(ctx context.Context, cmd *cli.Command) (context.Context, 
 	if !isLoggedIn {
 		return ctx, errors.New("you are not authenticated")
 	}
-
-	var secretsList []secret
-
-	code, err := SendRequest[[]secret](c, ctx, "/api/secret/list", http.MethodGet, nil, &secretsList)
-	if err != nil {
-		return ctx, errors.Wrap(err, "could not retrieve secrets list")
-	}
-	if code != http.StatusOK {
-		return ctx, fmt.Errorf("unexpected status code during secrets list retrieval: %d", code)
-	}
-
-	for _, item := range secretsList {
-		item := item
-		secretsByName[item.Name] = &item
-		secretsByID[item.ID] = &item
-	}
-
-	fmt.Fprintf(w, "Synchronized %d secrets from the server\n\n", len(secretsList))
 
 	return ctx, nil
 }

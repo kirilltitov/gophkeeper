@@ -9,7 +9,6 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 
-	"github.com/kirilltitov/gophkeeper/internal/utils"
 	"github.com/kirilltitov/gophkeeper/pkg/api"
 )
 
@@ -18,6 +17,7 @@ type Secret struct {
 	ID          uuid.UUID   `db:"id" json:"id"`                     // ID is a unique identifier.
 	UserID      uuid.UUID   `db:"user_id" json:"user_id"`           // UserID is the secret owner's identifier.
 	Name        string      `db:"name" json:"name"`                 // Name is secret name.
+	Description string      `db:"description" json:"description"`   // Description is secret description.
 	Tags        Tags        `db:"tags" json:"tags"`                 // Tags is a list of secret tags.
 	Kind        api.Kind    `db:"kind" json:"kind"`                 // Kind is a kind of secret (see [api.Kinds]).
 	IsEncrypted bool        `db:"is_encrypted" json:"is_encrypted"` // IsEncrypted indicates whether secret is encrypted.
@@ -27,6 +27,7 @@ type Secret struct {
 // SecretCredentials is a model containing secret credentials values.
 type SecretCredentials struct {
 	ID       uuid.UUID `db:"id" json:"id"`             // ID is a unique secret identifier.
+	URL      string    `db:"url" json:"url"`           // URL is a URL for the credentials.
 	Login    string    `db:"login" json:"login"`       // Login is credentials login.
 	Password string    `db:"password" json:"password"` // Password is credentials password.
 }
@@ -54,18 +55,35 @@ type SecretBankCard struct {
 
 // CreateSecret creates a new secret in DB.
 func (s *PgSQL) CreateSecret(ctx context.Context, secret *Secret) error {
-	return WithVoidTransaction(ctx, s, func(tx pgx.Tx) error {
-		_, ok := api.Kinds[secret.Kind]
-		if !ok {
-			return ErrInvalidKind
-		}
+	_, ok := api.Kinds[secret.Kind]
+	if !ok {
+		return ErrInvalidKind
+	}
 
-		if err := createSecret(ctx, tx, secret); err != nil {
-			return err
+	query := `insert into public.secret (id, user_id, name, description, kind, is_encrypted) values ($1, $2, $3, $4, $5, $6)`
+	_, err := s.Conn.Exec(
+		ctx,
+		query,
+		secret.ID,
+		secret.UserID,
+		secret.Name,
+		secret.Description,
+		secret.Kind,
+		secret.IsEncrypted,
+	)
+	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return ErrDuplicateSecretFound
 		}
+		return err
+	}
 
-		return tx.Commit(ctx)
-	})
+	if err := secret.Value.CreateValue(ctx, s.Conn, secret); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // DeleteSecret deletes a secret from a DB.
@@ -77,43 +95,70 @@ func (s *PgSQL) DeleteSecret(ctx context.Context, secretID uuid.UUID) error {
 
 // LoadSecretByName loads a secret by name.
 func (s *PgSQL) LoadSecretByName(ctx context.Context, userID uuid.UUID, name string) (*Secret, error) {
-	return WithTransaction(ctx, s, func(tx pgx.Tx) (*Secret, error) {
-		result, err := loadSecretByName(ctx, tx, userID, name)
+	var secret Secret
 
-		if err != nil {
+	query := `
+		select
+			s.*,
+			json_agg_strict(t.text) tags
+		from secret s
+		left join tag t on s.id = t.secret_id
+		where s.user_id = $1 and s.name = $2
+		group by s.id
+	`
+	if err := pgxscan.Get(ctx, s.Conn, &secret, query, userID, name); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNotFound
+		} else {
 			return nil, err
 		}
+	}
 
-		if err := tx.Commit(ctx); err != nil {
-			return nil, err
-		}
+	secretValue, err := loadSecretValue(ctx, s.Conn, &secret)
+	if err != nil {
+		return nil, err
+	}
+	secret.Value = secretValue
 
-		return result, err
-	})
+	return &secret, nil
 }
 
 // LoadSecretByID loads a secret by ID.
 func (s *PgSQL) LoadSecretByID(ctx context.Context, secretID uuid.UUID) (*Secret, error) {
-	return WithTransaction(ctx, s, func(tx pgx.Tx) (*Secret, error) {
-		result, err := loadSecretByID(ctx, tx, secretID)
+	var secret Secret
 
-		if err != nil {
+	query := `
+		select
+			s.*,
+			json_agg_strict(t.text) tags
+		from secret s
+		left join tag t on s.id = t.secret_id
+		where s.id = $1
+		group by s.id
+	`
+	if err := pgxscan.Get(ctx, s.Conn, &secret, query, secretID); err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, ErrNotFound
+		} else {
 			return nil, err
 		}
+	}
 
-		if err := tx.Commit(ctx); err != nil {
-			return nil, err
-		}
+	secretValue, err := loadSecretValue(ctx, s.Conn, &secret)
+	if err != nil {
+		return nil, err
+	}
+	secret.Value = secretValue
 
-		return result, err
-	})
+	return &secret, nil
 }
 
 // LoadSecrets loads all secrets for given user.
-func (s *PgSQL) LoadSecrets(ctx context.Context, userID uuid.UUID) (*[]Secret, error) {
-	var rows []Secret
+func (s *PgSQL) LoadSecrets(ctx context.Context, userID uuid.UUID) ([]*Secret, error) {
+	var query string
+	var rows []*Secret
 
-	query := `
+	query = `
 		select
 			s.*,
 			json_agg_strict(t.text) tags
@@ -128,7 +173,15 @@ func (s *PgSQL) LoadSecrets(ctx context.Context, userID uuid.UUID) (*[]Secret, e
 		return nil, err
 	}
 
-	return &rows, nil
+	for _, row := range rows {
+		secretValue, err := loadSecretValue(ctx, s.Conn, row)
+		if err != nil {
+			return nil, err
+		}
+		row.Value = secretValue
+	}
+
+	return rows, nil
 }
 
 // RenameSecret renames secret.
@@ -146,90 +199,11 @@ func (s *PgSQL) RenameSecret(ctx context.Context, secretID uuid.UUID, name strin
 	return nil
 }
 
-func loadSecretByName(ctx context.Context, tx pgx.Tx, userID uuid.UUID, name string) (*Secret, error) {
-	var secret Secret
-
-	query := `
-		select
-			s.*,
-			json_agg_strict(t.text) tags
-		from secret s
-		left join tag t on s.id = t.secret_id
-		where s.user_id = $1 and s.name = $2
-		group by s.id
-	`
-	if err := pgxscan.Get(ctx, tx, &secret, query, userID, name); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, ErrNotFound
-		} else {
-			return nil, err
-		}
-	}
-
-	secretValue, err := loadSecretValue(ctx, tx, &secret)
+// ChangeSecretDescription changes secret description.
+func (s *PgSQL) ChangeSecretDescription(ctx context.Context, secretID uuid.UUID, description string) error {
+	query := `update public.secret set description = $1 where id = $2`
+	_, err := s.Conn.Exec(ctx, query, description, secretID)
 	if err != nil {
-		if errors.Is(err, ErrNotFound) {
-			utils.Log.Errorf(
-				"Missing secret value '%s' for secret %s, this MUST NOT ever happen",
-				secret.Kind,
-				secret.ID.String(),
-			)
-		}
-		return nil, err
-	}
-	secret.Value = secretValue
-
-	return &secret, nil
-}
-
-func loadSecretByID(ctx context.Context, tx pgx.Tx, secretID uuid.UUID) (*Secret, error) {
-	var secret Secret
-
-	query := `
-		select
-			s.*,
-			json_agg_strict(t.text) tags
-		from secret s
-		left join tag t on s.id = t.secret_id
-		where s.id = $1
-		group by s.id
-	`
-	if err := pgxscan.Get(ctx, tx, &secret, query, secretID); err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, ErrNotFound
-		} else {
-			return nil, err
-		}
-	}
-
-	secretValue, err := loadSecretValue(ctx, tx, &secret)
-	if err != nil {
-		if errors.Is(err, ErrNotFound) {
-			utils.Log.Errorf(
-				"Missing secret value '%s' for secret %s, this MUST NOT ever happen",
-				secret.Kind,
-				secret.ID.String(),
-			)
-		}
-		return nil, err
-	}
-	secret.Value = secretValue
-
-	return &secret, nil
-}
-
-func createSecret(ctx context.Context, tx pgx.Tx, secret *Secret) error {
-	query := `insert into public.secret (id, user_id, name, kind, is_encrypted) values ($1, $2, $3, $4, $5)`
-	_, err := tx.Exec(ctx, query, secret.ID, secret.UserID, secret.Name, secret.Kind, secret.IsEncrypted)
-	if err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
-			return ErrDuplicateSecretFound
-		}
-		return err
-	}
-
-	if err := secret.Value.CreateValue(ctx, tx, secret); err != nil {
 		return err
 	}
 

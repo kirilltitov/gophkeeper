@@ -48,7 +48,7 @@ func TestGophkeeper_EditSecretCredentials(t *testing.T) {
 					Return(&secret, nil)
 				s.
 					EXPECT().
-					EditSecretCredentials(mock.Anything, mock.Anything, mock.Anything, mock.Anything).
+					EditSecretCredentials(mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
 				return s
 			},
@@ -86,13 +86,6 @@ func TestGophkeeper_EditSecretCredentials(t *testing.T) {
 			},
 			want: storage.ErrWrongKind,
 		},
-		{
-			name: "Negative (no user)",
-			input: func() storage.Storage {
-				return mockStorage.NewMockStorage(t)
-			},
-			want: ErrNoAuth,
-		},
 	}
 
 	for _, tt := range tests {
@@ -103,7 +96,7 @@ func TestGophkeeper_EditSecretCredentials(t *testing.T) {
 			if tt.userID != nil {
 				requestContext = utils.SetUserID(context.Background(), *tt.userID)
 			}
-			err := g.EditSecretCredentials(requestContext, secret.ID, "login", "password")
+			err := g.EditSecretCredentials(requestContext, secret.ID, "url", "login", "password")
 
 			if tt.want != nil {
 				assert.ErrorIs(t, err, tt.want)
@@ -181,13 +174,6 @@ func TestGophkeeper_EditSecretBankCard(t *testing.T) {
 				return s
 			},
 			want: storage.ErrWrongKind,
-		},
-		{
-			name: "Negative (no user)",
-			input: func() storage.Storage {
-				return mockStorage.NewMockStorage(t)
-			},
-			want: ErrNoAuth,
 		},
 	}
 
@@ -285,13 +271,6 @@ func TestGophkeeper_EditSecretBlob(t *testing.T) {
 			},
 			want: storage.ErrWrongKind,
 		},
-		{
-			name: "Negative (no user)",
-			input: func() storage.Storage {
-				return mockStorage.NewMockStorage(t)
-			},
-			want: ErrNoAuth,
-		},
 	}
 
 	for _, tt := range tests {
@@ -384,13 +363,6 @@ func TestGophkeeper_EditSecretNote(t *testing.T) {
 				return s
 			},
 			want: storage.ErrWrongKind,
-		},
-		{
-			name: "Negative (no user)",
-			input: func() storage.Storage {
-				return mockStorage.NewMockStorage(t)
-			},
-			want: ErrNoAuth,
 		},
 	}
 

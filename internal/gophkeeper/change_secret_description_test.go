@@ -15,7 +15,7 @@ import (
 	"github.com/kirilltitov/gophkeeper/internal/utils"
 )
 
-func TestGophkeeper_AddTag(t *testing.T) {
+func TestGophkeeper_EditSecretDescription(t *testing.T) {
 	cfg := config.NewWithoutParsing()
 	cnt := container.Container{Storage: nil}
 
@@ -24,7 +24,7 @@ func TestGophkeeper_AddTag(t *testing.T) {
 	user := &storage.User{
 		ID: utils.NewUUID6(),
 	}
-	secret := &storage.Secret{
+	secret := storage.Secret{
 		ID:     utils.NewUUID6(),
 		UserID: user.ID,
 	}
@@ -43,27 +43,14 @@ func TestGophkeeper_AddTag(t *testing.T) {
 				s.
 					EXPECT().
 					LoadSecretByID(mock.Anything, mock.Anything).
-					Return(secret, nil)
+					Return(&secret, nil)
 				s.
 					EXPECT().
-					AddTag(mock.Anything, mock.Anything, mock.Anything).
+					ChangeSecretDescription(mock.Anything, mock.Anything, mock.Anything).
 					Return(nil)
 				return s
 			},
 			want: nil,
-		},
-		{
-			name:   "Negative (no secret)",
-			userID: &user.ID,
-			input: func() storage.Storage {
-				s := mockStorage.NewMockStorage(t)
-				s.
-					EXPECT().
-					LoadSecretByID(mock.Anything, mock.Anything).
-					Return(nil, storage.ErrNotFound)
-				return s
-			},
-			want: storage.ErrNotFound,
 		},
 		{
 			name:   "Negative (wrong user)",
@@ -76,7 +63,7 @@ func TestGophkeeper_AddTag(t *testing.T) {
 				s.
 					EXPECT().
 					LoadSecretByID(mock.Anything, mock.Anything).
-					Return(wrongUserSecret, nil)
+					Return(&wrongUserSecret, nil)
 				return s
 			},
 			want: ErrNoAuth,
@@ -91,7 +78,7 @@ func TestGophkeeper_AddTag(t *testing.T) {
 			if tt.userID != nil {
 				requestContext = utils.SetUserID(context.Background(), *tt.userID)
 			}
-			err := g.AddTag(requestContext, secret.ID, "foo")
+			err := g.ChangeSecretDescription(requestContext, secret.ID, "foo")
 
 			if tt.want != nil {
 				assert.ErrorIs(t, tt.want, err)

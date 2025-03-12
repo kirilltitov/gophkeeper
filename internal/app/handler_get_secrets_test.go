@@ -68,11 +68,12 @@ func TestApplication_HandlerGetSecrets(t *testing.T) {
 
 					secret1ID := utils.NewUUID6()
 					secret2ID := utils.NewUUID6()
-					result := []storage.Secret{
+					result := []*storage.Secret{
 						{
 							ID:          secret1ID,
 							UserID:      userID,
 							Name:        "foo",
+							Description: "foo description",
 							Tags:        storage.Tags{"bar", "baz"},
 							Kind:        api.KindNote,
 							IsEncrypted: false,
@@ -84,12 +85,14 @@ func TestApplication_HandlerGetSecrets(t *testing.T) {
 						{
 							ID:          secret2ID,
 							UserID:      userID,
-							Name:        "foo",
+							Name:        "bar",
+							Description: "bar description",
 							Tags:        storage.Tags{},
 							Kind:        api.KindCredentials,
 							IsEncrypted: false,
 							Value: &storage.SecretCredentials{
 								ID:       secret2ID,
+								URL:      "someurl",
 								Login:    "teonoman",
 								Password: "megapass",
 							},
@@ -99,7 +102,7 @@ func TestApplication_HandlerGetSecrets(t *testing.T) {
 					s.
 						EXPECT().
 						LoadSecrets(mock.Anything, mock.Anything).
-						Return(&result, nil)
+						Return(result, nil)
 					return s
 				},
 			},
@@ -113,6 +116,7 @@ func TestApplication_HandlerGetSecrets(t *testing.T) {
 								"id": "<<PRESENCE>>",
 								"user_id": "<<PRESENCE>>",
 								"name": "foo",
+								"description": "foo description",
 								"tags": ["bar","baz"],
 								"kind": "note",
 								"is_encrypted": false,
@@ -124,12 +128,14 @@ func TestApplication_HandlerGetSecrets(t *testing.T) {
 							{
 								"id": "<<PRESENCE>>",
 								"user_id": "<<PRESENCE>>",
-								"name": "foo",
+								"name": "bar",
+								"description": "bar description",
 								"tags": [],
 								"kind": "credentials",
 								"is_encrypted": false,
 								"value": {
 									"id": "<<PRESENCE>>",
+									"url": "someurl",
 									"login": "teonoman",
 									"password": "megapass"
 								}

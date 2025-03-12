@@ -17,6 +17,7 @@ import (
 //
 //	{
 //		"name": "secret name",
+//		"description": "secret description",
 //		"is_encrypted": true,
 //		"value": {
 //			"name":   "NAME SURNAME",
@@ -58,6 +59,7 @@ func (a *Application) HandlerCreateSecretBankCard(w http.ResponseWriter, r *http
 
 	secret := &storage.Secret{
 		Name:        req.Name,
+		Description: req.Description,
 		IsEncrypted: req.IsEncrypted,
 		Value: &storage.SecretBankCard{
 			Name:   req.Value.Name,
