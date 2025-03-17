@@ -1,0 +1,8 @@
+filename: "mock_{{.InterfaceName}}.go"
+dir: "mocks"
+mockname: "Mock{{.InterfaceName}}"
+packages:
+  github.com/kirilltitov/gophkeeper/internal/storage:
+    interfaces:
+      Storage:
+         outpkg: "github.com/kirilltitov/gophkeeper/internal/mocks/storage"

@@ -1,0 +1,43 @@
+name: tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  tests:
+    name: tests
+    runs-on: ubuntu-latest
+    container: golang:1.22
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: mysecretpassword
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: brokeyourbike/go-mockery-action@v0
+        with:
+          mockery-version: '2.43.2'
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run tests
+        env:
+          DATABASE_URI: postgres://postgres:mysecretpassword@postgres:5432/postgres
+        run: |
+          go generate ./...
+          go test -race -cover -coverprofile=coverage.out ./...
+          sed -i '/\(\/cmd\/\|\/mocks\/\|\.pb\.go\)/d' coverage.out
+          go tool cover -func=coverage.out
